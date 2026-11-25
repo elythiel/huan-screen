@@ -68,6 +68,8 @@ The battery turns red below 20% and shows a bolt while charging. A notification 
 
 The **DPI** submenu lists the DPI stages of the active profile and switches to the one you pick.
 
+**About Huan Screen** shows the current version and checks GitHub for a newer release at launch, then once a day (you get a notification once per new version). **Update to vX.Y.Z** downloads the release, verifies its SHA-256 against the one published by GitHub, replaces the app and relaunches it. **Check for Updates** checks right away. The only network request the app makes is this check, to `api.github.com`.
+
 Everything is refreshed every 15 seconds, when the receiver is plugged or unplugged, and when the menu opens. A sleeping mouse does not answer: the menu then keeps the last known values.
 
 > When the cat is asleep (screen saver), the receiver only redraws on the next mouse activity. Picking a mode in the menu is mouse activity, so the screen wakes up right after switching.

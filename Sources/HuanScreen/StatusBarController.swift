@@ -9,6 +9,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     private let receiver: Receiver
     private let lowBatteryNotifier = LowBatteryNotifier()
+    private let updates = UpdateController()
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private var mode: ScreenMode?
     private var mouseInfo: MouseInfo?
@@ -17,6 +18,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private weak var batteryItem: NSMenuItem?
     private weak var specsItem: NSMenuItem?
     private var dpiMenu: DPIMenu?
+    private var aboutMenu: AboutMenu?
 
     init(receiver: Receiver) {
         self.receiver = receiver
@@ -24,6 +26,9 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
         receiver.onConnectionChange = { [weak self] in self?.refresh() }
         receiver.watchConnections()
+
+        updates.onChange = { [weak self] in self?.aboutMenu?.update() }
+        updates.start()
 
         statusItem.button?.target = self
         statusItem.button?.action = #selector(showMenu)
@@ -110,6 +115,10 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         login.target = self
         login.state = SMAppService.mainApp.status == .enabled ? .on : .off
         menu.addItem(login)
+
+        let aboutMenu = AboutMenu(updates: updates)
+        self.aboutMenu = aboutMenu
+        menu.addItem(aboutMenu.item)
         menu.addItem(.separator())
 
         menu.addItem(NSMenuItem(title: "Quit Huan Screen", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))

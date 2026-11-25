@@ -2,7 +2,7 @@ APP_NAME := HuanScreen
 APP := build/Huan Screen.app
 INSTALL_DIR := /Applications
 SOURCES := $(wildcard Sources/HuanScreen/*.swift)
-SWIFTC_FLAGS := -O -swift-version 6 -parse-as-library -framework IOKit -framework ServiceManagement
+SWIFTC_FLAGS := -O -swift-version 6 -parse-as-library -framework IOKit -framework ServiceManagement -framework CryptoKit
 VERSION := $(shell /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" Resources/Info.plist)
 RELEASE_ZIP := build/$(APP_NAME)-$(VERSION).zip
 
