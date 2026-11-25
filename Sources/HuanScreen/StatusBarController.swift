@@ -53,6 +53,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         mode = receiver.mode
         updateButton()
         refreshMouseInfo()
+        if !firmware.isInstalledKnown { firmware.refreshInstalled() }
     }
 
     private func refreshMouseInfo() {

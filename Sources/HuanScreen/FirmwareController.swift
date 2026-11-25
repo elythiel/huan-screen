@@ -19,6 +19,9 @@ final class FirmwareController {
 
     private let receiver: Receiver
     private(set) var installed = InstalledFirmware()
+    private var isReadingInstalled = false
+
+    var isInstalledKnown: Bool { installed.mouse != nil && installed.receiver != nil }
 
     init(receiver: Receiver) {
         self.receiver = receiver
@@ -42,6 +45,16 @@ final class FirmwareController {
             } catch {
                 state = .failed
             }
+        }
+    }
+
+    func refreshInstalled() {
+        guard !isReadingInstalled, receiver.isConnected else { return }
+        isReadingInstalled = true
+        Task {
+            if let read = await receiver.readFirmware() { remember(read) }
+            isReadingInstalled = false
+            onChange?()
         }
     }
 
