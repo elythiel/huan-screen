@@ -31,8 +31,7 @@ final class DPIMenu: NSObject, NSMenuDelegate {
         guard let info = mouseInfo() else { return }
         for (index, dpi) in info.dpiStages.enumerated() {
             let stage = index + 1
-            let stageItem = NSMenuItem(title: "\(dpi) DPI", action: #selector(select(_:)), keyEquivalent: "\(stage)")
-            stageItem.keyEquivalentModifierMask = []
+            let stageItem = NSMenuItem(title: "\(dpi) DPI", action: #selector(select(_:)), keyEquivalent: "")
             stageItem.target = self
             stageItem.tag = stage
             stageItem.state = info.activeDPIStage == stage ? .on : .off

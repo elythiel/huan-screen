@@ -2,8 +2,16 @@
 
 macOS menu bar app to switch the **WLMOUSE HUAN 8K receiver** screen between cat and status modes — no driver, no web hub.
 
-- **Cat mode**: the receiver shows its animated cat (or your custom image).
-- **Status mode**: the receiver shows the mouse stats (DPI, polling rate, battery…).
+<table>
+  <tr>
+    <td><img src="docs/dongle-cat.jpg" alt="HUAN receiver in cat mode" width="360"></td>
+    <td><img src="docs/dongle-status.jpg" alt="HUAN receiver in status mode" width="360"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Cat mode</b>: the receiver shows its animated cat (or your custom image)</td>
+    <td align="center"><b>Status mode</b>: the receiver shows the mouse stats (DPI, polling rate, LOD)</td>
+  </tr>
+</table>
 
 The menu also shows the mouse battery level, DPI, polling rate and lift-off distance.
 
@@ -48,25 +56,11 @@ open ~/Applications/"Huan Screen.app"
 
 Click the icon to open the menu:
 
-```
-▭ 76%
-1600 DPI · 1000 Hz · LOD 1 mm
-───────────────
-✓ 🐱 Cat mode
-  📊 Status mode
-───────────────
-  ⌖ DPI — 1600   ▸   400 DPI    1
-                     800 DPI    2
-                   ✓ 1600 DPI   3
-                     3200 DPI   4
-───────────────
-  Open at Login
-  Quit Huan Screen
-```
+<img src="docs/menu.png" alt="Huan Screen menu" width="304">
 
 The battery turns red below 20% and shows a bolt while charging. A notification warns you when the battery drops to 20%, then 10%; it is re-armed once the mouse charges or goes back above 25%. The menu bar always shows the cat icon, dimmed when the receiver is not plugged in; hover it to see the current mode.
 
-The **DPI** submenu lists the DPI stages of the active profile and switches to the one you pick (or press its number while the submenu is open).
+The **DPI** submenu lists the DPI stages of the active profile and switches to the one you pick.
 
 Everything is refreshed every 15 seconds, when the receiver is plugged or unplugged, and when the menu opens. A sleeping mouse does not answer: the menu then keeps the last known values.
 
