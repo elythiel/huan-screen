@@ -9,11 +9,27 @@ macOS menu bar app to switch the **WLMOUSE HUAN 8K receiver** screen between cat
 
 - macOS 13 (Ventura) or later
 - A WLMOUSE HUAN 8K receiver plugged in (USB `36A7:A863`)
-- Xcode Command Line Tools (`xcode-select --install`) to build
 
 No special permission is needed: the app talks to the receiver's vendor HID interface, which macOS does not protect behind Input Monitoring.
 
-## Install
+## Download
+
+1. Download `HuanScreen-<version>.zip` from the [latest release](https://github.com/elythiel/huan-screen/releases/latest).
+2. Unzip it and move `Huan Screen.app` to `/Applications`.
+3. Open it.
+
+The app is not notarized by Apple, so macOS blocks it on first launch. To allow it, either:
+
+- open **System Settings → Privacy & Security**, scroll down and click **Open Anyway** next to the Huan Screen message;
+- or remove the quarantine flag from a terminal:
+
+  ```sh
+  xattr -dr com.apple.quarantine "/Applications/Huan Screen.app"
+  ```
+
+## Build from source
+
+Requires the Xcode Command Line Tools (`xcode-select --install`).
 
 ```sh
 git clone git@github.com:elythiel/huan-screen.git
@@ -22,7 +38,7 @@ make install
 open ~/Applications/"Huan Screen.app"
 ```
 
-`make app` only builds `build/Huan Screen.app` (universal binary, ad-hoc signed). `make uninstall` removes it from `~/Applications`.
+`make app` only builds `build/Huan Screen.app` (universal binary, ad-hoc signed). `make release` also zips it into `build/HuanScreen-<version>.zip`, the version coming from `Resources/Info.plist`. `make uninstall` removes the app from `~/Applications`.
 
 ## Usage
 

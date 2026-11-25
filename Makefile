@@ -3,8 +3,10 @@ APP := build/Huan Screen.app
 INSTALL_DIR := $(HOME)/Applications
 SOURCES := $(wildcard Sources/HuanScreen/*.swift)
 SWIFTC_FLAGS := -O -swift-version 6 -parse-as-library -framework IOKit -framework ServiceManagement
+VERSION := $(shell /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" Resources/Info.plist)
+RELEASE_ZIP := build/$(APP_NAME)-$(VERSION).zip
 
-.PHONY: app install uninstall clean
+.PHONY: app install uninstall release clean
 
 build/$(APP_NAME)-arm64: $(SOURCES)
 	mkdir -p build
@@ -31,6 +33,11 @@ install: app
 
 uninstall:
 	rm -rf "$(INSTALL_DIR)/Huan Screen.app"
+
+release: app
+	rm -f "$(RELEASE_ZIP)"
+	ditto -c -k --sequesterRsrc --keepParent "$(APP)" "$(RELEASE_ZIP)"
+	shasum -a 256 "$(RELEASE_ZIP)"
 
 clean:
 	rm -rf build
