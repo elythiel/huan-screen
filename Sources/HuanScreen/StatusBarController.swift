@@ -18,24 +18,13 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         receiver.watchConnections()
 
         statusItem.button?.target = self
-        statusItem.button?.action = #selector(handleClick)
-        statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
+        statusItem.button?.action = #selector(showMenu)
+        statusItem.button?.sendAction(on: [.leftMouseDown])
 
         refreshTimer = Timer.scheduledTimer(withTimeInterval: Self.refreshInterval, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.refresh() }
         }
         refresh()
-    }
-
-    @objc private func handleClick() {
-        guard let event = NSApp.currentEvent else { return }
-        let wantsMenu = event.type == .rightMouseUp || event.modifierFlags.contains(.control)
-        wantsMenu ? showMenu() : toggle()
-    }
-
-    private func toggle() {
-        guard let mode = receiver.mode else { return refresh() }
-        apply(mode.toggled)
     }
 
     private func apply(_ target: ScreenMode) {
@@ -59,10 +48,11 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         image?.isTemplate = true
         button.image = image
         button.appearsDisabled = mode == nil
-        button.toolTip = mode == nil ? label : "\(label) — click to switch, right-click for menu"
+        button.toolTip = label
     }
 
-    private func showMenu() {
+    @objc private func showMenu() {
+        refresh()
         statusItem.menu = buildMenu()
         statusItem.button?.performClick(nil)
     }

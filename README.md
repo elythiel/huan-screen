@@ -44,14 +44,11 @@ open ~/Applications/"Huan Screen.app"
 
 ### Menu bar
 
-| Action | Result |
-| --- | --- |
-| Click | Switch between cat and status modes |
-| Right-click (or Control-click) | Menu: pick a mode, toggle **Open at Login**, quit |
+Click the icon to open the menu: pick **Cat mode** or **Status mode**, toggle **Open at Login**, or quit.
 
 The icon reflects the current mode and is dimmed when the receiver is not plugged in. The state is refreshed every 15 seconds and whenever the receiver is plugged or unplugged.
 
-> When the cat is asleep (screen saver), the receiver only redraws on the next mouse activity. Clicking the menu bar icon is mouse activity, so the screen wakes up right after switching.
+> When the cat is asleep (screen saver), the receiver only redraws on the next mouse activity. Picking a mode in the menu is mouse activity, so the screen wakes up right after switching.
 
 ### Command line
 
