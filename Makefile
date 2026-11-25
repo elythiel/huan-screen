@@ -6,7 +6,7 @@ SWIFTC_FLAGS := -O -swift-version 6 -parse-as-library -framework IOKit -framewor
 VERSION := $(shell /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" Resources/Info.plist)
 RELEASE_ZIP := build/$(APP_NAME)-$(VERSION).zip
 
-.PHONY: app install uninstall release bump clean
+.PHONY: app icon install uninstall release bump clean
 
 build/$(APP_NAME)-arm64: $(SOURCES)
 	mkdir -p build
@@ -21,10 +21,20 @@ build/$(APP_NAME): build/$(APP_NAME)-arm64 build/$(APP_NAME)-x86_64
 
 app: build/$(APP_NAME)
 	rm -rf "$(APP)"
-	mkdir -p "$(APP)/Contents/MacOS"
+	mkdir -p "$(APP)/Contents/MacOS" "$(APP)/Contents/Resources"
 	cp build/$(APP_NAME) "$(APP)/Contents/MacOS/$(APP_NAME)"
 	cp Resources/Info.plist "$(APP)/Contents/Info.plist"
+	cp Resources/AppIcon.icns "$(APP)/Contents/Resources/AppIcon.icns"
 	codesign --force --sign - "$(APP)"
+
+icon:
+	mkdir -p build/AppIcon.iconset
+	swift scripts/make-icon.swift build/AppIcon-1024.png
+	for size in 16 32 128 256 512; do \
+		sips -z $$size $$size build/AppIcon-1024.png --out build/AppIcon.iconset/icon_$${size}x$${size}.png >/dev/null; \
+		sips -z $$((size * 2)) $$((size * 2)) build/AppIcon-1024.png --out build/AppIcon.iconset/icon_$${size}x$${size}@2x.png >/dev/null; \
+	done
+	iconutil -c icns build/AppIcon.iconset -o Resources/AppIcon.icns
 
 install: app
 	osascript -e 'quit app id "io.github.elythiel.huan-screen"' 2>/dev/null || true

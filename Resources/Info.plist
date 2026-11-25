@@ -8,6 +8,8 @@
 	<string>Huan Screen</string>
 	<key>CFBundleExecutable</key>
 	<string>HuanScreen</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>io.github.elythiel.huan-screen</string>
 	<key>CFBundleInfoDictionaryVersion</key>

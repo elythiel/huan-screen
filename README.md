@@ -1,3 +1,5 @@
+<img src="docs/icon.png" alt="" width="128">
+
 # Huan Screen
 
 macOS menu bar app to switch the **WLMOUSE HUAN 8K receiver** screen between cat and status modes — no driver, no web hub.
@@ -47,7 +49,7 @@ cd huan-screen
 make install
 ```
 
-`make app` only builds `build/Huan Screen.app` (universal binary, ad-hoc signed). `make release` also zips it into `build/HuanScreen-<version>.zip`, the version coming from `Resources/Info.plist`. `make install` builds the app, quits the running one, installs it into `/Applications` and launches it. `make uninstall` removes it.
+`make app` only builds `build/Huan Screen.app` (universal binary, ad-hoc signed). `make release` also zips it into `build/HuanScreen-<version>.zip`, the version coming from `Resources/Info.plist`. `make icon` regenerates `Resources/AppIcon.icns` from `scripts/make-icon.swift`. `make install` builds the app, quits the running one, installs it into `/Applications` and launches it. `make uninstall` removes it.
 
 ### Releasing
 
