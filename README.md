@@ -59,7 +59,7 @@ Click the icon to open the menu:
   Quit Huan Screen
 ```
 
-The battery turns red below 20% and shows a bolt while charging. The menu bar always shows the cat icon, dimmed when the receiver is not plugged in; hover it to see the current mode.
+The battery turns red below 20% and shows a bolt while charging. A notification warns you when the battery drops to 20%, then 10%; it is re-armed once the mouse charges or goes back above 25%. The menu bar always shows the cat icon, dimmed when the receiver is not plugged in; hover it to see the current mode.
 
 Everything is refreshed every 15 seconds, when the receiver is plugged or unplugged, and when the menu opens. A sleeping mouse does not answer: the menu then keeps the last known values.
 

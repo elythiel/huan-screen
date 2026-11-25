@@ -8,6 +8,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private static let statusSymbol = "gauge.with.dots.needle.67percent"
 
     private let receiver: Receiver
+    private let lowBatteryNotifier = LowBatteryNotifier()
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private var mode: ScreenMode?
     private var mouseInfo: MouseInfo?
@@ -52,7 +53,10 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         guard !isReadingMouse else { return }
         isReadingMouse = true
         Task {
-            if let info = await receiver.readMouseInfo() { mouseInfo = info }
+            if let info = await receiver.readMouseInfo() {
+                mouseInfo = info
+                lowBatteryNotifier.update(with: info)
+            }
             isReadingMouse = false
             updateMouseItems()
         }
