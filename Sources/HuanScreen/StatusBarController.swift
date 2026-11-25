@@ -153,6 +153,12 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(updatesMenu.item)
         menu.addItem(.separator())
 
+        let hub = NSMenuItem(title: localized("WLMOUSE Hub…"), action: #selector(openHub), keyEquivalent: "")
+        hub.target = self
+        hub.image = symbolImage("arrow.up.forward.app", label: localized("WLMOUSE Hub…"))
+        menu.addItem(hub)
+        menu.addItem(.separator())
+
         menu.addItem(NSMenuItem(title: localized("Quit Huan Screen"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         return menu
     }
@@ -203,6 +209,10 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     @objc private func selectCat() { apply(.cat) }
 
     @objc private func selectStatus() { apply(.status) }
+
+    @objc private func openHub() {
+        NSWorkspace.shared.open(FirmwareChecker.hubURL)
+    }
 
     @objc private func toggleOpenAtLogin() {
         let service = SMAppService.mainApp
