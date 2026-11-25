@@ -50,6 +50,13 @@ open ~/Applications/"Huan Screen.app"
 
 `make app` only builds `build/Huan Screen.app` (universal binary, ad-hoc signed). `make release` also zips it into `build/HuanScreen-<version>.zip`, the version coming from `Resources/Info.plist`. `make uninstall` removes the app from `~/Applications`.
 
+### Releasing
+
+1. Bump `CFBundleShortVersionString` (and `CFBundleVersion`) in `Resources/Info.plist` and commit.
+2. Push a matching tag: `git tag v0.2.0 && git push origin v0.2.0`.
+
+GitHub Actions then builds the app, checks the tag matches the version, and publishes the release with the zip, install notes, SHA-256 and changelog.
+
 ## Usage
 
 ### Menu bar

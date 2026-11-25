@@ -16,6 +16,11 @@ enum CommandLineInterface {
         """
 
     static func run(_ command: String) -> Int32 {
+        if ["-h", "--help", "help"].contains(command) {
+            print(usage)
+            return EXIT_SUCCESS
+        }
+
         let receiver = Receiver()
         guard receiver.isConnected else { return fail("HUAN receiver not found") }
 
@@ -25,9 +30,6 @@ enum CommandLineInterface {
         case "cat": return set(.cat, on: receiver)
         case "status": return set(.status, on: receiver)
         case "toggle": return receiver.mode.map { set($0.toggled, on: receiver) } ?? fail("Unable to read the screen mode")
-        case "-h", "--help", "help":
-            print(usage)
-            return EXIT_SUCCESS
         default: return fail("Unknown command: \(command)\n\n\(usage)")
         }
     }

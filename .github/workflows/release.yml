@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the tag matches the app version
+        run: |
+          VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" Resources/Info.plist)
+          if [ "${GITHUB_REF_NAME}" != "v${VERSION}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match CFBundleShortVersionString ${VERSION} in Resources/Info.plist"
+            exit 1
+          fi
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+
+      - name: Build the release archive
+        run: make release
+
+      - name: Write the release notes
+        run: |
+          ZIP="build/HuanScreen-${VERSION}.zip"
+          SHA=$(shasum -a 256 "$ZIP" | cut -d ' ' -f 1)
+          cat > build/notes.md <<EOF
+          ## Install
+
+          1. Download \`HuanScreen-${VERSION}.zip\` below, unzip it and move \`Huan Screen.app\` to \`/Applications\`.
+          2. The app is not notarized, so macOS blocks it on first launch. Allow it in **System Settings → Privacy & Security → Open Anyway**, or run:
+
+             \`\`\`sh
+             xattr -dr com.apple.quarantine "/Applications/Huan Screen.app"
+             \`\`\`
+
+          SHA-256: \`${SHA}\`
+          EOF
+
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" "build/HuanScreen-${VERSION}.zip" \
+            --title "${GITHUB_REF_NAME}" \
+            --notes-file build/notes.md \
+            --generate-notes
