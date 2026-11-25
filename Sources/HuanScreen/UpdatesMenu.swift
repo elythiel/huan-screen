@@ -23,10 +23,7 @@ final class UpdatesMenu: NSObject {
         super.init()
 
         updateRow.action = { [weak self] in self?.updates.install() }
-        checkRow.action = { [weak self] in
-            self?.updates.check()
-            self?.firmware.check()
-        }
+        checkRow.action = { [weak self] in self?.updates.check() }
         githubRow.action = { NSWorkspace.shared.open(UpdateChecker.repositoryURL) }
 
         let submenu = NSMenu()

@@ -12,7 +12,7 @@ final class LowBatteryNotifier: NSObject, UNUserNotificationCenterDelegate {
     override init() {
         super.init()
         center.delegate = self
-        center.requestAuthorization(options: [.alert, .sound]) { _, _ in }
+        Task { _ = try? await center.requestAuthorization(options: [.alert, .sound]) }
     }
 
     func update(with info: MouseInfo) {

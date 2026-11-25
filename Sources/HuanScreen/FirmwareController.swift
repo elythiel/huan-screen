@@ -19,7 +19,7 @@ final class FirmwareController {
 
     private let receiver: Receiver
     private(set) var installed = InstalledFirmware()
-    private var isReadingInstalled = false
+    private var installedRead: Task<Void, Never>?
 
     var isInstalledKnown: Bool { installed.mouse != nil && installed.receiver != nil }
 
@@ -36,7 +36,7 @@ final class FirmwareController {
         guard state != .checking, receiver.isConnected else { return }
         state = .checking
         Task {
-            if let installed = await receiver.readFirmware() { remember(installed) }
+            await readInstalled()
             do {
                 let latest = try await FirmwareChecker.latest(for: installed)
                 let status = FirmwareStatus(installed: installed, latest: latest)
@@ -49,17 +49,25 @@ final class FirmwareController {
     }
 
     func refreshInstalled() {
-        guard !isReadingInstalled, receiver.isConnected else { return }
-        isReadingInstalled = true
+        guard installedRead == nil, receiver.isConnected else { return }
         Task {
-            if let read = await receiver.readFirmware() { remember(read) }
-            isReadingInstalled = false
+            await readInstalled()
             onChange?()
         }
     }
 
     func openHub() {
         NSWorkspace.shared.open(FirmwareChecker.hubURL)
+    }
+
+    private func readInstalled() async {
+        if let installedRead { return await installedRead.value }
+        let read = Task {
+            if let read = await receiver.readFirmware() { remember(read) }
+        }
+        installedRead = read
+        await read.value
+        installedRead = nil
     }
 
     private func remember(_ read: InstalledFirmware) {
