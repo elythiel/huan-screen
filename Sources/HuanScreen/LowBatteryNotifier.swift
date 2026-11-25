@@ -33,8 +33,8 @@ final class LowBatteryNotifier: NSObject, UNUserNotificationCenterDelegate {
 
     private func notify(level: Int) {
         let content = UNMutableNotificationContent()
-        content.title = "Mouse battery low"
-        content.body = "\(level)% left — time to charge your HUAN."
+        content.title = localized("Mouse battery low")
+        content.body = localized("%ld%% left — time to charge your HUAN.", level)
         content.sound = .default
         center.add(UNNotificationRequest(identifier: "low-battery", content: content, trigger: nil))
     }

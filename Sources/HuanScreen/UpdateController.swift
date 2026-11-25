@@ -78,18 +78,18 @@ final class UpdateController {
         defaults.set(update.version, forKey: Self.notifiedVersionKey)
 
         let content = UNMutableNotificationContent()
-        content.title = "Huan Screen \(update.version) is available"
-        content.body = "Open the menu, then About Huan Screen → Update to install it."
+        content.title = localized("Huan Screen %@ is available", update.version)
+        content.body = localized("Open the menu, then About Huan Screen → Update to install it.")
         UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "update-available", content: content, trigger: nil))
     }
 
     private func showFailure(_ error: Error, update: AvailableUpdate) {
         NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
-        alert.messageText = "Couldn't install Huan Screen \(update.version)"
+        alert.messageText = localized("Couldn't install Huan Screen %@", update.version)
         alert.informativeText = error.localizedDescription
-        alert.addButton(withTitle: "Open Release Page")
-        alert.addButton(withTitle: "Cancel")
+        alert.addButton(withTitle: localized("Open Release Page"))
+        alert.addButton(withTitle: localized("Cancel"))
         if alert.runModal() == .alertFirstButtonReturn { NSWorkspace.shared.open(update.pageURL) }
     }
 }

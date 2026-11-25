@@ -5,7 +5,7 @@ enum BatteryIcon {
 
     static func label(level: Int, isCharging: Bool) -> NSAttributedString {
         let font = NSFont.menuFont(ofSize: 0)
-        let text = isCharging ? " \(level)% — charging" : " \(level)%"
+        let text = isCharging ? localized(" %ld%% — charging", level) : localized(" %ld%%", level)
         let label = NSMutableAttributedString(string: text, attributes: [.font: font, .foregroundColor: NSColor.disabledControlTextColor])
         guard let image = image(level: level, isCharging: isCharging) else { return label }
 
@@ -20,7 +20,7 @@ enum BatteryIcon {
     static func image(level: Int, isCharging: Bool) -> NSImage? {
         let fillColor: NSColor = level < lowThreshold ? .systemRed : .systemGreen
         let configuration: NSImage.SymbolConfiguration = isCharging ? .preferringMulticolor() : .init(paletteColors: [fillColor, .labelColor])
-        return NSImage(systemSymbolName: symbolName(level: level, isCharging: isCharging), accessibilityDescription: "Battery \(level)%")?
+        return NSImage(systemSymbolName: symbolName(level: level, isCharging: isCharging), accessibilityDescription: localized("Battery %ld%%", level))?
             .withSymbolConfiguration(configuration)
     }
 

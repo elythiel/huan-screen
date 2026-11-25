@@ -6,7 +6,7 @@ SWIFTC_FLAGS := -O -swift-version 6 -parse-as-library -framework IOKit -framewor
 VERSION := $(shell /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" Resources/Info.plist)
 RELEASE_ZIP := build/$(APP_NAME)-$(VERSION).zip
 
-.PHONY: app icon install uninstall release bump clean
+.PHONY: app icon check-localizations install uninstall release bump clean
 
 build/$(APP_NAME)-arm64: $(SOURCES)
 	mkdir -p build
@@ -25,6 +25,7 @@ app: build/$(APP_NAME)
 	cp build/$(APP_NAME) "$(APP)/Contents/MacOS/$(APP_NAME)"
 	cp Resources/Info.plist "$(APP)/Contents/Info.plist"
 	cp Resources/AppIcon.icns "$(APP)/Contents/Resources/AppIcon.icns"
+	cp -R Resources/*.lproj "$(APP)/Contents/Resources/"
 	codesign --force --sign - "$(APP)"
 
 icon:
@@ -35,6 +36,9 @@ icon:
 		sips -z $$((size * 2)) $$((size * 2)) build/AppIcon-1024.png --out build/AppIcon.iconset/icon_$${size}x$${size}@2x.png >/dev/null; \
 	done
 	iconutil -c icns build/AppIcon.iconset -o Resources/AppIcon.icns
+
+check-localizations:
+	scripts/check-localizations.sh
 
 install: app
 	osascript -e 'quit app id "io.github.elythiel.huan-screen"' 2>/dev/null || true

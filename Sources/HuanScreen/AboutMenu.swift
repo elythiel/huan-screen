@@ -2,13 +2,13 @@ import AppKit
 
 @MainActor
 final class AboutMenu: NSObject {
-    let item = NSMenuItem(title: "About Huan Screen", action: nil, keyEquivalent: "")
+    let item = NSMenuItem(title: localized("About Huan Screen"), action: nil, keyEquivalent: "")
 
     private let updates: UpdateController
     private let versionRow = MenuRowView(title: "")
     private let updateRow = MenuRowView(title: "", symbol: "arrow.down.circle", closesMenu: true)
     private let checkRow = MenuRowView(title: "", symbol: "arrow.clockwise")
-    private let githubRow = MenuRowView(title: "View on GitHub", symbol: "chevron.left.forwardslash.chevron.right", closesMenu: true)
+    private let githubRow = MenuRowView(title: localized("View on GitHub"), symbol: "chevron.left.forwardslash.chevron.right", closesMenu: true)
     private let versionItem = NSMenuItem()
     private let updateItem = NSMenuItem()
     private let checkItem = NSMenuItem()
@@ -39,39 +39,46 @@ final class AboutMenu: NSObject {
     }
 
     func update() {
-        item.title = updates.availableUpdate == nil ? "About Huan Screen" : "About Huan Screen — update available"
+        item.title = updates.availableUpdate == nil ? localized("About Huan Screen") : localized("About Huan Screen — update available")
         versionRow.title = versionTitle
 
         switch updates.state {
         case let .available(update):
-            updateRow.title = "Update to v\(update.version)"
+            updateRow.title = localized("Update to v%@", update.version)
             updateItem.isHidden = false
             updateItem.isEnabled = true
         case let .installing(update):
-            updateRow.title = "Installing v\(update.version)…"
+            updateRow.title = localized("Installing v%@…", update.version)
             updateItem.isHidden = false
             updateItem.isEnabled = false
         default:
             updateItem.isHidden = true
         }
 
-        checkRow.title = updates.state == .checking ? "Checking for Updates…" : "Check for Updates"
+        checkRow.title = updates.state == .checking ? localized("Checking for Updates…") : localized("Check for Updates")
         checkItem.isEnabled = !isBusy
         for row in [versionRow, updateRow, checkRow] { row.needsDisplay = true }
     }
 
     private var longestTitles: [String] {
-        let version = "Version \(UpdateChecker.currentVersion)"
-        return ["\(version) — couldn't check for updates", "Installing v00.00.00…", "Checking for Updates…", "View on GitHub"]
+        let version = UpdateChecker.currentVersion
+        return [
+            localized("Version %@ — couldn't check for updates", version),
+            localized("Version %@ — up to date", version),
+            localized("Installing v%@…", "00.00.00"),
+            localized("Update to v%@", "00.00.00"),
+            localized("Checking for Updates…"),
+            localized("View on GitHub"),
+        ]
     }
 
     private var versionTitle: String {
-        let version = "Version \(UpdateChecker.currentVersion)"
+        let version = UpdateChecker.currentVersion
         return switch updates.state {
-        case .unknown, .available, .installing: version
-        case .checking: "\(version) — checking…"
-        case .upToDate: "\(version) — up to date"
-        case .failed: "\(version) — couldn't check for updates"
+        case .unknown, .available, .installing: localized("Version %@", version)
+        case .checking: localized("Version %@ — checking…", version)
+        case .upToDate: localized("Version %@ — up to date", version)
+        case .failed: localized("Version %@ — couldn't check for updates", version)
         }
     }
 

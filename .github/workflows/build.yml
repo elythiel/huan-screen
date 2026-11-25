@@ -15,6 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Check the localizations
+        run: make check-localizations
+
       - name: Build the app
         run: make app
 

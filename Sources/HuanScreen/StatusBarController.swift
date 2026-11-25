@@ -73,9 +73,9 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         button.image = symbolImage(Self.catSymbol, label: "Huan Screen")
         button.appearsDisabled = mode == nil
         button.toolTip = switch mode {
-        case .cat: "Cat mode"
-        case .status: "Status mode"
-        case nil: "Receiver not found"
+        case .cat: localized("Cat mode")
+        case .status: localized("Status mode")
+        case nil: localized("Receiver not found")
         }
     }
 
@@ -102,8 +102,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         addHeader(to: menu)
         menu.addItem(.separator())
 
-        menu.addItem(modeItem(title: "Cat mode", mode: .cat, symbol: Self.catSymbol, action: #selector(selectCat)))
-        menu.addItem(modeItem(title: "Status mode", mode: .status, symbol: Self.statusSymbol, action: #selector(selectStatus)))
+        menu.addItem(modeItem(title: localized("Cat mode"), mode: .cat, symbol: Self.catSymbol, action: #selector(selectCat)))
+        menu.addItem(modeItem(title: localized("Status mode"), mode: .status, symbol: Self.statusSymbol, action: #selector(selectStatus)))
         menu.addItem(.separator())
 
         let dpiMenu = DPIMenu(mouseInfo: { [weak self] in self?.mouseInfo }, onSelect: { [weak self] in self?.selectDPIStage($0) })
@@ -111,7 +111,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(dpiMenu.item)
         menu.addItem(dpiMenu.separator)
 
-        let login = NSMenuItem(title: "Open at Login", action: #selector(toggleOpenAtLogin), keyEquivalent: "")
+        let login = NSMenuItem(title: localized("Open at Login"), action: #selector(toggleOpenAtLogin), keyEquivalent: "")
         login.target = self
         login.state = SMAppService.mainApp.status == .enabled ? .on : .off
         menu.addItem(login)
@@ -121,12 +121,12 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(aboutMenu.item)
         menu.addItem(.separator())
 
-        menu.addItem(NSMenuItem(title: "Quit Huan Screen", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: localized("Quit Huan Screen"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         return menu
     }
 
     private func addHeader(to menu: NSMenu) {
-        guard receiver.isConnected else { return menu.addItem(infoItem("HUAN receiver not found")) }
+        guard receiver.isConnected else { return menu.addItem(infoItem(localized("HUAN receiver not found"))) }
         let battery = infoItem("")
         let specs = infoItem("")
         menu.addItem(battery)
@@ -154,7 +154,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         guard let batteryItem, let specsItem else { return }
         guard let mouseInfo else {
             batteryItem.attributedTitle = nil
-            batteryItem.title = isReadingMouse ? "Reading mouse…" : "Mouse not responding"
+            batteryItem.title = isReadingMouse ? localized("Reading mouse…") : localized("Mouse not responding")
             specsItem.isHidden = true
             return
         }

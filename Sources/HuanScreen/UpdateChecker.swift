@@ -13,8 +13,8 @@ enum UpdateCheckError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .badResponse: "GitHub returned an unexpected response."
-        case .missingAsset: "The latest release has no downloadable app."
+        case .badResponse: localized("GitHub returned an unexpected response.")
+        case .missingAsset: localized("The latest release has no downloadable app.")
         }
     }
 }

@@ -1,0 +1,41 @@
+"About Huan Screen" = "À propos de Huan Screen";
+"About Huan Screen — update available" = "À propos de Huan Screen — mise à jour disponible";
+"View on GitHub" = "Voir sur GitHub";
+"Update to v%@" = "Mettre à jour vers la v%@";
+"Installing v%@…" = "Installation de la v%@…";
+"Check for Updates" = "Rechercher des mises à jour";
+"Checking for Updates…" = "Recherche de mises à jour…";
+"Version %@" = "Version %@";
+"Version %@ — checking…" = "Version %@ — vérification…";
+"Version %@ — up to date" = "Version %@ — à jour";
+"Version %@ — couldn't check for updates" = "Version %@ — vérification impossible";
+
+"Cat mode" = "Mode chat";
+"Status mode" = "Mode status";
+"Receiver not found" = "Récepteur introuvable";
+"HUAN receiver not found" = "Récepteur HUAN introuvable";
+"Open at Login" = "Ouvrir à la connexion";
+"Quit Huan Screen" = "Quitter Huan Screen";
+
+"Reading mouse…" = "Lecture de la souris…";
+"Mouse not responding" = "La souris ne répond pas";
+" %ld%%" = " %ld %%";
+" %ld%% — charging" = " %ld %% — en charge";
+"Battery %ld%%" = "Batterie %ld %%";
+
+"Mouse battery low" = "Batterie de la souris faible";
+"%ld%% left — time to charge your HUAN." = "Plus que %ld %% — pensez à recharger votre HUAN.";
+
+"Huan Screen %@ is available" = "Huan Screen %@ est disponible";
+"Open the menu, then About Huan Screen → Update to install it." = "Ouvrez le menu, puis À propos de Huan Screen → Mettre à jour pour l’installer.";
+"Couldn't install Huan Screen %@" = "Impossible d’installer Huan Screen %@";
+"Open Release Page" = "Ouvrir la page de la version";
+"Cancel" = "Annuler";
+
+"Huan Screen cannot replace itself in this folder." = "Huan Screen ne peut pas se remplacer dans ce dossier.";
+"The update could not be downloaded." = "La mise à jour n’a pas pu être téléchargée.";
+"The downloaded update is corrupted (checksum mismatch)." = "La mise à jour téléchargée est corrompue (empreinte différente).";
+"The downloaded update is not a valid Huan Screen app." = "La mise à jour téléchargée n’est pas une app Huan Screen valide.";
+"%@ failed while installing the update." = "%@ a échoué pendant l’installation de la mise à jour.";
+"GitHub returned an unexpected response." = "GitHub a renvoyé une réponse inattendue.";
+"The latest release has no downloadable app." = "La dernière version ne contient pas d’app à télécharger.";

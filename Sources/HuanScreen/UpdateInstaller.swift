@@ -10,11 +10,11 @@ enum UpdateInstallError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .notWritable: "Huan Screen cannot replace itself in this folder."
-        case .downloadFailed: "The update could not be downloaded."
-        case .checksumMismatch: "The downloaded update is corrupted (checksum mismatch)."
-        case .invalidBundle: "The downloaded update is not a valid Huan Screen app."
-        case let .commandFailed(command): "\(command) failed while installing the update."
+        case .notWritable: localized("Huan Screen cannot replace itself in this folder.")
+        case .downloadFailed: localized("The update could not be downloaded.")
+        case .checksumMismatch: localized("The downloaded update is corrupted (checksum mismatch).")
+        case .invalidBundle: localized("The downloaded update is not a valid Huan Screen app.")
+        case let .commandFailed(command): localized("%@ failed while installing the update.", command)
         }
     }
 }
