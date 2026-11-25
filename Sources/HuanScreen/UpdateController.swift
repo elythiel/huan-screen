@@ -81,7 +81,7 @@ final class UpdateController {
 
         let content = UNMutableNotificationContent()
         content.title = localized("Huan Screen %@ is available", update.version)
-        content.body = localized("Open the menu, then About Huan Screen → Update to install it.")
+        content.body = localized("Open the menu, then Updates → Update to install it.")
         UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "update-available", content: content, trigger: nil))
     }
 

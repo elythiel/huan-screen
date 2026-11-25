@@ -1,8 +1,8 @@
 import AppKit
 
 @MainActor
-final class AboutMenu: NSObject {
-    let item = NSMenuItem(title: localized("About Huan Screen"), action: nil, keyEquivalent: "")
+final class UpdatesMenu: NSObject {
+    let item = NSMenuItem(title: localized("Updates"), action: nil, keyEquivalent: "")
 
     private let updates: UpdateController
     private let firmware: FirmwareController
@@ -42,13 +42,13 @@ final class AboutMenu: NSObject {
         for menuItem in submenu.items { menuItem.view?.frame.size.width = width }
 
         item.submenu = submenu
-        item.image = NSImage(systemSymbolName: "info.circle", accessibilityDescription: "About")
+        item.image = NSImage(systemSymbolName: "arrow.triangle.2.circlepath", accessibilityDescription: localized("Updates"))
         update()
     }
 
     func update() {
         let hasUpdate = updates.availableUpdate != nil || firmware.status?.isUpdateAvailable == true
-        item.title = hasUpdate ? localized("About Huan Screen — update available") : localized("About Huan Screen")
+        item.title = hasUpdate ? localized("Updates — update available") : localized("Updates")
         versionRow.title = versionTitle
 
         switch updates.state {

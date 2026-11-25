@@ -1,5 +1,5 @@
-"About Huan Screen" = "À propos de Huan Screen";
-"About Huan Screen — update available" = "À propos de Huan Screen — mise à jour disponible";
+"Updates" = "Mises à jour";
+"Updates — update available" = "Mises à jour — nouvelle version disponible";
 "View on GitHub" = "Voir sur GitHub";
 "Update to v%@" = "Mettre à jour vers la v%@";
 "Installing v%@…" = "Installation de la v%@…";
@@ -27,7 +27,7 @@
 "%ld%% left — time to charge your HUAN." = "Plus que %ld %% — pensez à recharger votre HUAN.";
 
 "Huan Screen %@ is available" = "Huan Screen %@ est disponible";
-"Open the menu, then About Huan Screen → Update to install it." = "Ouvrez le menu, puis À propos de Huan Screen → Mettre à jour pour l’installer.";
+"Open the menu, then Updates → Update to install it." = "Ouvrez le menu, puis Mises à jour → Mettre à jour pour l’installer.";
 "Couldn't install Huan Screen %@" = "Impossible d’installer Huan Screen %@";
 "Open Release Page" = "Ouvrir la page de la version";
 "Cancel" = "Annuler";

@@ -19,7 +19,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private weak var batteryItem: NSMenuItem?
     private weak var specsItem: NSMenuItem?
     private var dpiMenu: DPIMenu?
-    private var aboutMenu: AboutMenu?
+    private var updatesMenu: UpdatesMenu?
 
     init(receiver: Receiver) {
         self.receiver = receiver
@@ -29,9 +29,9 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         receiver.onConnectionChange = { [weak self] in self?.refresh() }
         receiver.watchConnections()
 
-        updates.onChange = { [weak self] in self?.aboutMenu?.update() }
+        updates.onChange = { [weak self] in self?.updatesMenu?.update() }
         updates.onCheck = { [weak self] notify in self?.firmware.check(notify: notify) }
-        firmware.onChange = { [weak self] in self?.aboutMenu?.update() }
+        firmware.onChange = { [weak self] in self?.updatesMenu?.update() }
         updates.start()
 
         statusItem.button?.target = self
@@ -120,9 +120,9 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         login.state = SMAppService.mainApp.status == .enabled ? .on : .off
         menu.addItem(login)
 
-        let aboutMenu = AboutMenu(updates: updates, firmware: firmware)
-        self.aboutMenu = aboutMenu
-        menu.addItem(aboutMenu.item)
+        let updatesMenu = UpdatesMenu(updates: updates, firmware: firmware)
+        self.updatesMenu = updatesMenu
+        menu.addItem(updatesMenu.item)
         menu.addItem(.separator())
 
         menu.addItem(NSMenuItem(title: localized("Quit Huan Screen"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
