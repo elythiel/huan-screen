@@ -16,6 +16,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private var refreshTimer: Timer?
     private weak var batteryItem: NSMenuItem?
     private weak var specsItem: NSMenuItem?
+    private var dpiMenu: DPIMenu?
 
     init(receiver: Receiver) {
         self.receiver = receiver
@@ -100,6 +101,11 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(modeItem(title: "Status mode", mode: .status, symbol: Self.statusSymbol, action: #selector(selectStatus)))
         menu.addItem(.separator())
 
+        let dpiMenu = DPIMenu(mouseInfo: { [weak self] in self?.mouseInfo }, onSelect: { [weak self] in self?.selectDPIStage($0) })
+        self.dpiMenu = dpiMenu
+        menu.addItem(dpiMenu.item)
+        menu.addItem(dpiMenu.separator)
+
         let login = NSMenuItem(title: "Open at Login", action: #selector(toggleOpenAtLogin), keyEquivalent: "")
         login.target = self
         login.state = SMAppService.mainApp.status == .enabled ? .on : .off
@@ -127,7 +133,15 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         return item
     }
 
+    private func selectDPIStage(_ stage: Int) {
+        guard var info = mouseInfo, receiver.selectDPIStage(stage, profile: info.profile) else { return }
+        info.activeDPIStage = stage
+        mouseInfo = info
+        updateMouseItems()
+    }
+
     private func updateMouseItems() {
+        dpiMenu?.update()
         guard let batteryItem, let specsItem else { return }
         guard let mouseInfo else {
             batteryItem.attributedTitle = nil

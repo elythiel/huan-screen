@@ -3,9 +3,16 @@ import Foundation
 struct MouseInfo: Sendable, Equatable {
     let batteryLevel: Int
     let isCharging: Bool
-    let dpi: Int?
+    let profile: UInt8
+    let dpiStages: [Int]
+    var activeDPIStage: Int?
     let pollingRate: Int?
     let liftOffDistance: Double?
+
+    var dpi: Int? {
+        guard let activeDPIStage, dpiStages.indices.contains(activeDPIStage - 1) else { return nil }
+        return dpiStages[activeDPIStage - 1]
+    }
 
     var specsDescription: String {
         [
@@ -19,8 +26,8 @@ struct MouseInfo: Sendable, Equatable {
 }
 
 extension MouseInfo {
-    private static let mouse: UInt8 = 0x02
-    private static let delay: useconds_t = 60_000
+    static let mouse: UInt8 = 0x02
+    static let delay: useconds_t = 60_000
     private static let defaultProfile: UInt8 = 1
     private static let maxDPIStages: UInt8 = 6
     private static let bytesPerDPIStage = 4
@@ -33,7 +40,9 @@ extension MouseInfo {
         return MouseInfo(
             batteryLevel: Int(battery[1]),
             isCharging: battery[0] == 1,
-            dpi: readDPI(from: channel, profile: profile),
+            profile: profile,
+            dpiStages: readDPIStages(from: channel, profile: profile),
+            activeDPIStage: readSetting(0x82, length: 2, from: channel, profile: profile).map(Int.init),
             pollingRate: readSetting(0x80, length: 2, from: channel, profile: profile).flatMap { pollingRates[$0] },
             liftOffDistance: readSetting(0x88, length: 3, from: channel, profile: profile).map(decodeLiftOffDistance)
         )
@@ -43,15 +52,13 @@ extension MouseInfo {
         channel.send(HIDRequest(target: mouse, length: length, group: 1, command: command, parameters: [profile]), delay: delay)?[1]
     }
 
-    private static func readDPI(from channel: HIDChannel, profile: UInt8) -> Int? {
-        guard let activeStage = readSetting(0x82, length: 2, from: channel, profile: profile),
-              let stages = channel.send(HIDRequest(target: mouse, length: 10, group: 1, command: 0x81, parameters: [profile, maxDPIStages]), delay: delay)
-        else { return nil }
-
-        let index = Int(activeStage) - 1
-        guard (0..<Int(stages[1])).contains(index) else { return nil }
-        let offset = 2 + index * bytesPerDPIStage
-        return Int(stages[offset]) << 8 | Int(stages[offset + 1])
+    private static func readDPIStages(from channel: HIDChannel, profile: UInt8) -> [Int] {
+        guard let response = channel.send(HIDRequest(target: mouse, length: 10, group: 1, command: 0x81, parameters: [profile, maxDPIStages]), delay: delay) else { return [] }
+        let count = min(Int(response[1]), Int(maxDPIStages))
+        return (0..<count).map { index in
+            let offset = 2 + index * bytesPerDPIStage
+            return Int(response[offset]) << 8 | Int(response[offset + 1])
+        }
     }
 
     private static func decodeLiftOffDistance(_ value: UInt8) -> Double {

@@ -55,11 +55,18 @@ Click the icon to open the menu:
 ✓ 🐱 Cat mode
   📊 Status mode
 ───────────────
+  ⌖ DPI — 1600   ▸   400 DPI    1
+                     800 DPI    2
+                   ✓ 1600 DPI   3
+                     3200 DPI   4
+───────────────
   Open at Login
   Quit Huan Screen
 ```
 
 The battery turns red below 20% and shows a bolt while charging. A notification warns you when the battery drops to 20%, then 10%; it is re-armed once the mouse charges or goes back above 25%. The menu bar always shows the cat icon, dimmed when the receiver is not plugged in; hover it to see the current mode.
+
+The **DPI** submenu lists the DPI stages of the active profile and switches to the one you pick (or press its number while the submenu is open).
 
 Everything is refreshed every 15 seconds, when the receiver is plugged or unplugged, and when the menu opens. A sleeping mouse does not answer: the menu then keeps the last known values.
 
@@ -85,7 +92,7 @@ It exits with a non-zero status if the receiver is not found.
 
 Found by reading the official WLMOUSE web hub. The receiver exposes a vendor HID interface (usage page `0xFFFF`) with 64-byte feature reports and no report ID.
 
-Each command is a feature report write followed by a feature report read (30 ms later for the receiver, 60 ms for the mouse, which answers over the air). Commands from `80` upwards are reads.
+Each command is a feature report write followed by a feature report read (30 ms later for the receiver, 60 ms for the mouse, which answers over the air). Commands from `80` upwards are reads; the same command without the `80` bit writes.
 
 | Byte | 0 | 1 | 2 | 3 | 4 | 5 | 6… |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -109,6 +116,7 @@ Each command is a feature report write followed by a feature report read (30 ms 
 | `02 02 00 83` | Battery | charging (`01`), level in % |
 | `02 01 00 85` | Active profile | profile (1-based) |
 | `02 02 01 82 <profile>` | Active DPI stage | profile, stage (1-based) |
+| `02 02 01 02 <profile> <stage>` | Select DPI stage | profile, stage |
 | `02 0A 01 81 <profile> 06` | DPI stages | profile, count, then X and Y per stage (16-bit big-endian) |
 | `02 02 01 80 <profile>` | Polling rate | profile, code: `08` 125, `04` 250, `02` 500, `01` 1000, `20` 2000, `40` 4000, `80` 8000 Hz |
 | `02 03 01 88 <profile>` | Lift-off distance | profile, `01`/`02` mm, `0x80 + tenths`, or BCD (`0x12` = 1.2 mm) |

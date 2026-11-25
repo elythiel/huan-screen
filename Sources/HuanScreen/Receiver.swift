@@ -62,6 +62,12 @@ final class Receiver {
         sendScreenCommand(0x0A, value: mode == .status ? 1 : 0) != nil
     }
 
+    @discardableResult
+    func selectDPIStage(_ stage: Int, profile: UInt8) -> Bool {
+        let request = HIDRequest(target: MouseInfo.mouse, length: 2, group: 1, command: 0x02, parameters: [profile, UInt8(stage)])
+        return channel?.send(request, delay: MouseInfo.delay) != nil
+    }
+
     func readMouseInfo() async -> MouseInfo? {
         guard let channel else { return nil }
         return await Task.detached { MouseInfo.read(from: channel) }.value
