@@ -1,17 +1,38 @@
 import AppKit
 
 @MainActor
-final class AboutMenu: NSObject, NSMenuDelegate {
+final class AboutMenu: NSObject {
     let item = NSMenuItem(title: "About Huan Screen", action: nil, keyEquivalent: "")
 
     private let updates: UpdateController
+    private let versionRow = MenuRowView(title: "")
+    private let updateRow = MenuRowView(title: "", symbol: "arrow.down.circle", closesMenu: true)
+    private let checkRow = MenuRowView(title: "", symbol: "arrow.clockwise")
+    private let githubRow = MenuRowView(title: "View on GitHub", symbol: "safari", closesMenu: true)
+    private let versionItem = NSMenuItem()
+    private let updateItem = NSMenuItem()
+    private let checkItem = NSMenuItem()
+    private let githubItem = NSMenuItem()
 
     init(updates: UpdateController) {
         self.updates = updates
         super.init()
+
+        updateRow.action = { [weak self] in self?.updates.install() }
+        checkRow.action = { [weak self] in self?.updates.check() }
+        githubRow.action = { NSWorkspace.shared.open(UpdateChecker.repositoryURL) }
+
+        let width = longestTitles.map(MenuRowView.preferredWidth).max() ?? 0
         let submenu = NSMenu()
-        submenu.delegate = self
         submenu.autoenablesItems = false
+        for (menuItem, row) in [(versionItem, versionRow), (updateItem, updateRow), (checkItem, checkRow), (githubItem, githubRow)] {
+            row.frame.size.width = width
+            menuItem.view = row
+            if menuItem === githubItem { submenu.addItem(.separator()) }
+            submenu.addItem(menuItem)
+        }
+        versionItem.isEnabled = false
+
         item.submenu = submenu
         item.image = NSImage(systemSymbolName: "info.circle", accessibilityDescription: "About")
         update()
@@ -19,25 +40,29 @@ final class AboutMenu: NSObject, NSMenuDelegate {
 
     func update() {
         item.title = updates.availableUpdate == nil ? "About Huan Screen" : "About Huan Screen — update available"
-        if let submenu = item.submenu { menuNeedsUpdate(submenu) }
+        versionRow.title = versionTitle
+
+        switch updates.state {
+        case let .available(update):
+            updateRow.title = "Update to v\(update.version)"
+            updateItem.isHidden = false
+            updateItem.isEnabled = true
+        case let .installing(update):
+            updateRow.title = "Installing v\(update.version)…"
+            updateItem.isHidden = false
+            updateItem.isEnabled = false
+        default:
+            updateItem.isHidden = true
+        }
+
+        checkRow.title = updates.state == .checking ? "Checking for Updates…" : "Check for Updates"
+        checkItem.isEnabled = !isBusy
+        for row in [versionRow, updateRow, checkRow] { row.needsDisplay = true }
     }
 
-    func menuNeedsUpdate(_ menu: NSMenu) {
-        menu.removeAllItems()
-        menu.addItem(disabledItem(versionTitle))
-
-        if case let .available(update) = updates.state {
-            menu.addItem(actionItem("Update to v\(update.version)", symbol: "arrow.down.circle", action: #selector(installUpdate)))
-        }
-        if case let .installing(update) = updates.state {
-            menu.addItem(disabledItem("Installing v\(update.version)…"))
-        }
-
-        let check = actionItem("Check for Updates", symbol: "arrow.clockwise", action: #selector(checkForUpdates))
-        check.isEnabled = !isBusy
-        menu.addItem(check)
-        menu.addItem(.separator())
-        menu.addItem(actionItem("View on GitHub", symbol: "safari", action: #selector(openRepository)))
+    private var longestTitles: [String] {
+        let version = "Version \(UpdateChecker.currentVersion)"
+        return ["\(version) — couldn't check for updates", "Installing v00.00.00…", "Checking for Updates…", "View on GitHub"]
     }
 
     private var versionTitle: String {
@@ -56,23 +81,4 @@ final class AboutMenu: NSObject, NSMenuDelegate {
         default: false
         }
     }
-
-    private func disabledItem(_ title: String) -> NSMenuItem {
-        let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
-        item.isEnabled = false
-        return item
-    }
-
-    private func actionItem(_ title: String, symbol: String, action: Selector) -> NSMenuItem {
-        let item = NSMenuItem(title: title, action: action, keyEquivalent: "")
-        item.target = self
-        item.image = NSImage(systemSymbolName: symbol, accessibilityDescription: title)
-        return item
-    }
-
-    @objc private func checkForUpdates() { updates.check() }
-
-    @objc private func installUpdate() { updates.install() }
-
-    @objc private func openRepository() { NSWorkspace.shared.open(UpdateChecker.repositoryURL) }
 }
