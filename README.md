@@ -106,6 +106,20 @@ $HUAN toggle
 
 It exits with a non-zero status if the receiver is not found.
 
+### Language
+
+The menu follows the macOS language: French or English (the default for any other language). The command line output is always in English. To force a language for Huan Screen only, then relaunch the app:
+
+```sh
+defaults write io.github.elythiel.huan-screen AppleLanguages -array en   # or fr
+```
+
+To go back to the macOS language:
+
+```sh
+defaults delete io.github.elythiel.huan-screen AppleLanguages
+```
+
 ## Protocol
 
 Found by reading the official WLMOUSE web hub. The receiver exposes a vendor HID interface (usage page `0xFFFF`) with 64-byte feature reports and no report ID.
