@@ -17,7 +17,6 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private var isReadingMouse = false
     private var refreshTimer: Timer?
     private weak var batteryItem: NSMenuItem?
-    private weak var specsItem: NSMenuItem?
     private var mouseSettings: MouseSettingsMenus?
     private var updatesMenu: UpdatesMenu?
 
@@ -139,11 +138,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private func addHeader(to menu: NSMenu) {
         guard receiver.isConnected else { return menu.addItem(infoItem(localized("HUAN receiver not found"))) }
         let battery = infoItem("")
-        let specs = infoItem("")
         menu.addItem(battery)
-        menu.addItem(specs)
         batteryItem = battery
-        specsItem = specs
         updateMouseItems()
     }
 
@@ -155,16 +151,13 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     private func updateMouseItems() {
         mouseSettings?.update()
-        guard let batteryItem, let specsItem else { return }
+        guard let batteryItem else { return }
         guard let mouseInfo else {
             batteryItem.attributedTitle = nil
             batteryItem.title = isReadingMouse ? localized("Reading mouse…") : localized("Mouse not responding")
-            specsItem.isHidden = true
             return
         }
         batteryItem.attributedTitle = BatteryIcon.label(level: mouseInfo.batteryLevel, isCharging: mouseInfo.isCharging)
-        specsItem.title = mouseInfo.specsDescription
-        specsItem.isHidden = mouseInfo.specsDescription.isEmpty
     }
 
     private func modeItem(title: String, mode itemMode: ScreenMode, symbol: String, action: Selector) -> NSMenuItem {
