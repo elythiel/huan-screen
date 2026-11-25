@@ -1,6 +1,6 @@
 APP_NAME := HuanScreen
 APP := build/Huan Screen.app
-INSTALL_DIR := $(HOME)/Applications
+INSTALL_DIR := /Applications
 SOURCES := $(wildcard Sources/HuanScreen/*.swift)
 SWIFTC_FLAGS := -O -swift-version 6 -parse-as-library -framework IOKit -framework ServiceManagement
 VERSION := $(shell /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" Resources/Info.plist)
@@ -27,9 +27,10 @@ app: build/$(APP_NAME)
 	codesign --force --sign - "$(APP)"
 
 install: app
-	mkdir -p "$(INSTALL_DIR)"
+	osascript -e 'quit app id "io.github.elythiel.huan-screen"' 2>/dev/null || true
 	rm -rf "$(INSTALL_DIR)/Huan Screen.app"
 	cp -R "$(APP)" "$(INSTALL_DIR)/"
+	open "$(INSTALL_DIR)/Huan Screen.app"
 
 uninstall:
 	rm -rf "$(INSTALL_DIR)/Huan Screen.app"

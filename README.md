@@ -45,10 +45,9 @@ Requires the Xcode Command Line Tools (`xcode-select --install`).
 git clone git@github.com:elythiel/huan-screen.git
 cd huan-screen
 make install
-open ~/Applications/"Huan Screen.app"
 ```
 
-`make app` only builds `build/Huan Screen.app` (universal binary, ad-hoc signed). `make release` also zips it into `build/HuanScreen-<version>.zip`, the version coming from `Resources/Info.plist`. `make uninstall` removes the app from `~/Applications`.
+`make app` only builds `build/Huan Screen.app` (universal binary, ad-hoc signed). `make release` also zips it into `build/HuanScreen-<version>.zip`, the version coming from `Resources/Info.plist`. `make install` builds the app, quits the running one, installs it into `/Applications` and launches it. `make uninstall` removes it.
 
 ### Releasing
 
@@ -78,7 +77,7 @@ Everything is refreshed every 15 seconds, when the receiver is plugged or unplug
 The app binary doubles as a CLI, handy for Raycast, Shortcuts or a keyboard shortcut:
 
 ```sh
-HUAN=~/Applications/"Huan Screen.app"/Contents/MacOS/HuanScreen
+HUAN="/Applications/Huan Screen.app/Contents/MacOS/HuanScreen"
 
 $HUAN get      # prints "cat" or "status"
 $HUAN info     # prints the battery level, DPI, polling rate and lift-off distance
