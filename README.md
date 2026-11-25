@@ -74,7 +74,7 @@ GitHub Actions then builds the app, checks the tag matches the version, and publ
 
 Click the icon to open the menu:
 
-<img src="docs/menu.png" alt="Huan Screen menu" width="310">
+<img src="docs/menu.png" alt="Huan Screen menu" width="305">
 
 The battery turns red below 20% and shows a bolt while charging. A notification warns you when the battery drops to 20%, then 10%; it is re-armed once the mouse charges or goes back above 25%. The menu bar always shows the cat icon, dimmed when the receiver is not plugged in; hover it to see the current mode.
 
