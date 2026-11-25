@@ -15,7 +15,7 @@ Huan Screen is a macOS menu bar app (Swift 6, AppKit, IOKit, no dependencies) th
 
 - `HuanScreenApp` starts the menu bar app, or the command line interface when an argument is given.
 - `HIDChannel` owns the HID device. Callers go through `perform`, which runs a whole block of transactions on its serial queue (never on the main thread or the cooperative pool) and resumes them with the result.
-- `Receiver` matches the receiver, follows plug and unplug events and exposes the receiver and mouse commands.
+- `Receiver` matches the receiver and the mouse when it is plugged in with its cable (`A864` HUAN, `A859` HUAN M), follows plug and unplug events and exposes the receiver and mouse commands. Mouse commands go to the wired mouse when it is plugged in, since the receiver loses it then, and through the receiver otherwise.
 - `MouseInfo` and `Firmware` read and decode the mouse state and the firmware versions.
 - `StatusBarController` builds the menu. `MouseSettingsMenus` and `SettingMenu` hold the DPI, polling rate and lift-off distance submenus. `UpdatesMenu`, `FirmwareRows` and `MenuRowView` draw the Updates submenu, whose rows keep the menu open.
 - `UpdateChecker`, `UpdateInstaller` and `UpdateController` check GitHub releases and install updates. `FirmwareController` compares the firmware with the WLMOUSE Hub's `env-models.json`.

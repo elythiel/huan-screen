@@ -11,7 +11,8 @@ enum ScreenMode {
 @MainActor
 final class Receiver {
     private static let vendorID = 0x36A7
-    private static let productID = 0xA863
+    private static let receiverProductID = 0xA863
+    private static let wiredMouseProductIDs: Set<Int> = [0xA864, 0xA859]
     private static let vendorUsagePage = 0xFFFF
     private static let dongle: UInt8 = 0x00
     private static let screenDelay: useconds_t = 30_000
@@ -19,19 +20,23 @@ final class Receiver {
     var onConnectionChange: (() -> Void)?
 
     private let manager = IOHIDManagerCreate(kCFAllocatorDefault, IOOptionBits(kIOHIDOptionsTypeNone))
-    private var device: IOHIDDevice?
-    private var channel: HIDChannel?
+    private var receiverDevice: IOHIDDevice?
+    private var receiverChannel: HIDChannel?
+    private var wiredMouseDevice: IOHIDDevice?
+    private var wiredMouseChannel: HIDChannel?
 
-    var isConnected: Bool { channel != nil }
+    var isConnected: Bool { receiverChannel != nil }
+    var isMouseWired: Bool { wiredMouseChannel != nil }
+    private var mouseChannel: HIDChannel? { wiredMouseChannel ?? receiverChannel }
 
     init() {
-        IOHIDManagerSetDeviceMatching(manager, [
-            kIOHIDVendorIDKey: Self.vendorID,
-            kIOHIDProductIDKey: Self.productID,
-            kIOHIDPrimaryUsagePageKey: Self.vendorUsagePage,
-        ] as CFDictionary)
+        let productIDs = [Self.receiverProductID] + Self.wiredMouseProductIDs.sorted()
+        let matching = productIDs.map { productID in
+            [kIOHIDVendorIDKey: Self.vendorID, kIOHIDProductIDKey: productID, kIOHIDPrimaryUsagePageKey: Self.vendorUsagePage]
+        }
+        IOHIDManagerSetDeviceMatchingMultiple(manager, matching as CFArray)
         IOHIDManagerOpen(manager, IOOptionBits(kIOHIDOptionsTypeNone))
-        attachFirstAvailableDevice()
+        attachAvailableDevices()
     }
 
     func watchConnections() {
@@ -54,11 +59,19 @@ final class Receiver {
     }
 
     func readMouseInfo() async -> MouseInfo? {
-        await perform(MouseInfo.read)
+        await perform(on: mouseChannel, MouseInfo.read)
     }
 
     func readFirmware() async -> InstalledFirmware? {
-        await perform(InstalledFirmware.read)
+        let receiver = await perform(on: receiverChannel, InstalledFirmware.readReceiver)
+        let mouse = await perform(on: mouseChannel, InstalledFirmware.readMouse)
+        guard receiver != nil || mouse != nil else { return nil }
+        return InstalledFirmware(
+            mouse: mouse?.mouse,
+            mousePID: mouse?.mousePID,
+            receiver: receiver?.receiver,
+            receiverPID: receiver?.receiverPID
+        )
     }
 
     @discardableResult
@@ -88,35 +101,51 @@ final class Receiver {
 
     private func sendScreenCommand(_ command: UInt8, value: UInt8 = 0) async -> UInt8? {
         let request = HIDRequest(target: Self.dongle, length: 1, group: 5, command: command, parameters: [value])
-        return await send(request, delay: Self.screenDelay)?[0]
+        let delay = Self.screenDelay
+        return await perform(on: receiverChannel) { $0.send(request, delay: delay) }?[0]
     }
 
     private func send(_ request: HIDRequest, delay: useconds_t) async -> [UInt8]? {
-        await perform { $0.send(request, delay: delay) }
+        await perform(on: mouseChannel) { $0.send(request, delay: delay) }
     }
 
-    private func perform<T: Sendable>(_ work: @escaping @Sendable (HIDTransport) -> T?) async -> T? {
+    private func perform<T: Sendable>(on channel: HIDChannel?, _ work: @escaping @Sendable (HIDTransport) -> T?) async -> T? {
         guard let channel else { return nil }
         return await channel.perform(work)
     }
 
-    private func attachFirstAvailableDevice() {
-        guard let devices = IOHIDManagerCopyDevices(manager) as? Set<IOHIDDevice>, let first = devices.first else { return }
-        attach(first)
+    private func attachAvailableDevices() {
+        guard let devices = IOHIDManagerCopyDevices(manager) as? Set<IOHIDDevice> else { return }
+        for device in devices { attach(device) }
     }
 
-    private func attach(_ newDevice: IOHIDDevice) {
-        guard device != newDevice else { return }
-        IOHIDDeviceOpen(newDevice, IOOptionBits(kIOHIDOptionsTypeNone))
-        device = newDevice
-        channel = HIDChannel(device: newDevice)
+    private func attach(_ device: IOHIDDevice) {
+        let productID = IOHIDDeviceGetProperty(device, kIOHIDProductIDKey as CFString) as? Int
+        if productID == Self.receiverProductID {
+            guard receiverDevice != device else { return }
+            receiverDevice = device
+            receiverChannel = HIDChannel(device: device)
+        } else if let productID, Self.wiredMouseProductIDs.contains(productID) {
+            guard wiredMouseDevice != device else { return }
+            wiredMouseDevice = device
+            wiredMouseChannel = HIDChannel(device: device)
+        } else {
+            return
+        }
+        IOHIDDeviceOpen(device, IOOptionBits(kIOHIDOptionsTypeNone))
         onConnectionChange?()
     }
 
-    private func detach(_ removedDevice: IOHIDDevice) {
-        guard device == removedDevice else { return }
-        device = nil
-        channel = nil
+    private func detach(_ device: IOHIDDevice) {
+        if receiverDevice == device {
+            receiverDevice = nil
+            receiverChannel = nil
+        } else if wiredMouseDevice == device {
+            wiredMouseDevice = nil
+            wiredMouseChannel = nil
+        } else {
+            return
+        }
         onConnectionChange?()
     }
 }

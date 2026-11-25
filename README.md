@@ -86,7 +86,7 @@ The same submenu shows the firmware versions of the mouse and the receiver, and 
 
 The only network requests the app makes are these checks, to `api.github.com` and `gm.wlmouse.gg`.
 
-Everything is refreshed every 15 seconds, when the receiver is plugged or unplugged, and when the menu opens. A sleeping mouse does not answer: the menu then keeps the last known values.
+When the mouse is plugged in with its cable (to charge it), the receiver loses it: the app then talks to the mouse directly over USB. Everything is refreshed every 15 seconds, when the receiver is plugged or unplugged, and when the menu opens. A sleeping mouse does not answer: the menu then keeps the last known values.
 
 > When the cat is asleep (screen saver), the receiver only redraws on the next mouse activity. Picking a mode in the menu is mouse activity, so the screen wakes up right after switching.
 

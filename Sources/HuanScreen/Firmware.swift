@@ -29,10 +29,14 @@ struct FirmwareStatus: Sendable, Equatable {
 extension InstalledFirmware {
     private static let delay: useconds_t = 60_000
 
-    static func read(from transport: HIDTransport) -> InstalledFirmware {
+    static func readReceiver(from transport: HIDTransport) -> InstalledFirmware {
         let receiver = version(of: 0x00, from: transport)
+        return InstalledFirmware(receiver: receiver?.version, receiverPID: receiver?.pid)
+    }
+
+    static func readMouse(from transport: HIDTransport) -> InstalledFirmware {
         let mouse = version(of: MouseInfo.mouse, from: transport)
-        return InstalledFirmware(mouse: mouse?.version, mousePID: mouse?.pid, receiver: receiver?.version, receiverPID: receiver?.pid)
+        return InstalledFirmware(mouse: mouse?.version, mousePID: mouse?.pid)
     }
 
     private static func version(of target: UInt8, from transport: HIDTransport) -> (version: String, pid: String)? {
