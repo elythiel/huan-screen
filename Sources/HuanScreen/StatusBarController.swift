@@ -15,6 +15,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private var mode: ScreenMode?
     private var mouseInfo: MouseInfo?
     private var isReadingMouse = false
+    private var mouseWriteCount = 0
     private var refreshTimer: Timer?
     private weak var batteryItem: NSMenuItem?
     private weak var catModeItem: NSMenuItem?
@@ -73,9 +74,10 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         }
         guard !isReadingMouse else { return }
         isReadingMouse = true
+        let writeCount = mouseWriteCount
         Task {
             if let info = await receiver.readMouseInfo() {
-                mouseInfo = info
+                if writeCount == mouseWriteCount { mouseInfo = info }
                 lowBatteryNotifier.update(with: info)
             }
             isReadingMouse = false
@@ -130,6 +132,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
             receiver: receiver,
             mouseInfo: { [weak self] in self?.mouseInfo },
             onUpdate: { [weak self] info in
+                self?.mouseWriteCount += 1
                 self?.mouseInfo = info
                 self?.updateMouseItems()
             }
