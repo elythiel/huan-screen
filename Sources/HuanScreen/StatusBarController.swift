@@ -17,6 +17,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private var isReadingMouse = false
     private var refreshTimer: Timer?
     private weak var batteryItem: NSMenuItem?
+    private weak var catModeItem: NSMenuItem?
+    private weak var statusModeItem: NSMenuItem?
     private var mouseSettings: MouseSettingsMenus?
     private var updatesMenu: UpdatesMenu?
 
@@ -44,15 +46,24 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     }
 
     private func apply(_ target: ScreenMode) {
-        receiver.setMode(target)
-        refresh()
+        Task {
+            await receiver.setMode(target)
+            refresh()
+        }
     }
 
     private func refresh() {
-        mode = receiver.mode
-        updateButton()
+        refreshMode()
         refreshMouseInfo()
         if !firmware.isInstalledKnown { firmware.refreshInstalled() }
+    }
+
+    private func refreshMode() {
+        Task {
+            mode = await receiver.readMode()
+            updateButton()
+            updateModeItems()
+        }
     }
 
     private func refreshMouseInfo() {
@@ -106,9 +117,14 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         addHeader(to: menu)
         menu.addItem(.separator())
 
-        menu.addItem(modeItem(title: localized("Cat mode"), mode: .cat, symbol: Self.catSymbol, action: #selector(selectCat)))
-        menu.addItem(modeItem(title: localized("Status mode"), mode: .status, symbol: Self.statusSymbol, action: #selector(selectStatus)))
+        let catModeItem = modeItem(title: localized("Cat mode"), symbol: Self.catSymbol, action: #selector(selectCat))
+        let statusModeItem = modeItem(title: localized("Status mode"), symbol: Self.statusSymbol, action: #selector(selectStatus))
+        menu.addItem(catModeItem)
+        menu.addItem(statusModeItem)
         menu.addItem(.separator())
+        self.catModeItem = catModeItem
+        self.statusModeItem = statusModeItem
+        updateModeItems()
 
         let mouseSettings = MouseSettingsMenus(
             receiver: receiver,
@@ -161,12 +177,16 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         batteryItem.attributedTitle = BatteryIcon.label(level: mouseInfo.batteryLevel, isCharging: mouseInfo.isCharging)
     }
 
-    private func modeItem(title: String, mode itemMode: ScreenMode, symbol: String, action: Selector) -> NSMenuItem {
+    private func modeItem(title: String, symbol: String, action: Selector) -> NSMenuItem {
         let item = NSMenuItem(title: title, action: receiver.isConnected ? action : nil, keyEquivalent: "")
         item.target = self
         item.image = symbolImage(symbol, label: title)
-        item.state = mode == itemMode ? .on : .off
         return item
+    }
+
+    private func updateModeItems() {
+        catModeItem?.state = mode == .cat ? .on : .off
+        statusModeItem?.state = mode == .status ? .on : .off
     }
 
     @objc private func selectCat() { apply(.cat) }

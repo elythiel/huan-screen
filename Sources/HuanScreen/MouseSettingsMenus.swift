@@ -35,10 +35,8 @@ final class MouseSettingsMenus {
                 }
             },
             onSelect: { [weak self] stage in
-                self?.apply { info in
-                    guard self?.receiver.selectDPIStage(stage, profile: info.profile) == true else { return false }
-                    info.activeDPIStage = stage
-                    return true
+                self?.apply(then: { $0.activeDPIStage = stage }) { receiver, info in
+                    await receiver.selectDPIStage(stage, profile: info.profile)
                 }
             }
         )
@@ -56,10 +54,8 @@ final class MouseSettingsMenus {
                 }
             },
             onSelect: { [weak self] rate in
-                self?.apply { info in
-                    guard self?.receiver.selectPollingRate(rate, profile: info.profile) == true else { return false }
-                    info.pollingRate = rate
-                    return true
+                self?.apply(then: { $0.pollingRate = rate }) { receiver, info in
+                    await receiver.selectPollingRate(rate, profile: info.profile)
                 }
             }
         )
@@ -78,17 +74,19 @@ final class MouseSettingsMenus {
             },
             onSelect: { [weak self] tenths in
                 let distance = Double(tenths) / 10
-                self?.apply { info in
-                    guard self?.receiver.selectLiftOffDistance(distance, mode: info.liftOffMode, profile: info.profile) == true else { return false }
-                    info.liftOffDistance = distance
-                    return true
+                self?.apply(then: { $0.liftOffDistance = distance }) { receiver, info in
+                    await receiver.selectLiftOffDistance(distance, mode: info.liftOffMode, profile: info.profile)
                 }
             }
         )
     }
 
-    private func apply(_ change: (inout MouseInfo) -> Bool) {
-        guard var info = mouseInfo(), change(&info) else { return }
-        onUpdate(info)
+    private func apply(then change: @escaping (inout MouseInfo) -> Void, _ write: @escaping (Receiver, MouseInfo) async -> Bool) {
+        guard let info = mouseInfo() else { return }
+        Task {
+            guard await write(receiver, info), var latest = mouseInfo() else { return }
+            change(&latest)
+            onUpdate(latest)
+        }
     }
 }

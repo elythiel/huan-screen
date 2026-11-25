@@ -10,11 +10,6 @@ struct HIDRequest: Sendable {
 }
 
 final class HIDChannel: @unchecked Sendable {
-    private static let reportLength = 64
-    private static let parametersOffset = 6
-    private static let successStatus: UInt8 = 0xA1
-    private static let maxAttempts = 3
-
     private let device: IOHIDDevice
     private let queue = DispatchQueue(label: "io.github.elythiel.huan-screen.hid")
 
@@ -22,13 +17,28 @@ final class HIDChannel: @unchecked Sendable {
         self.device = device
     }
 
-    func send(_ request: HIDRequest, delay: useconds_t) -> [UInt8]? {
-        queue.sync {
-            for _ in 0..<Self.maxAttempts {
-                if let payload = transact(request, delay: delay) { return payload }
+    func perform<T: Sendable>(_ work: @escaping @Sendable (HIDTransport) -> T) async -> T {
+        await withCheckedContinuation { continuation in
+            queue.async {
+                continuation.resume(returning: work(HIDTransport(device: self.device)))
             }
-            return nil
         }
+    }
+}
+
+struct HIDTransport {
+    private static let reportLength = 64
+    private static let parametersOffset = 6
+    private static let successStatus: UInt8 = 0xA1
+    private static let maxAttempts = 3
+
+    fileprivate let device: IOHIDDevice
+
+    func send(_ request: HIDRequest, delay: useconds_t) -> [UInt8]? {
+        for _ in 0..<Self.maxAttempts {
+            if let payload = transact(request, delay: delay) { return payload }
+        }
+        return nil
     }
 
     private func transact(_ request: HIDRequest, delay: useconds_t) -> [UInt8]? {

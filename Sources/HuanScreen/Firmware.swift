@@ -29,14 +29,14 @@ struct FirmwareStatus: Sendable, Equatable {
 extension InstalledFirmware {
     private static let delay: useconds_t = 60_000
 
-    static func read(from channel: HIDChannel) -> InstalledFirmware {
-        let receiver = version(of: 0x00, from: channel)
-        let mouse = version(of: MouseInfo.mouse, from: channel)
+    static func read(from transport: HIDTransport) -> InstalledFirmware {
+        let receiver = version(of: 0x00, from: transport)
+        let mouse = version(of: MouseInfo.mouse, from: transport)
         return InstalledFirmware(mouse: mouse?.version, mousePID: mouse?.pid, receiver: receiver?.version, receiverPID: receiver?.pid)
     }
 
-    private static func version(of target: UInt8, from channel: HIDChannel) -> (version: String, pid: String)? {
-        guard let payload = channel.send(HIDRequest(target: target, length: 0x10, group: 0, command: 0x81), delay: delay) else { return nil }
+    private static func version(of target: UInt8, from transport: HIDTransport) -> (version: String, pid: String)? {
+        guard let payload = transport.send(HIDRequest(target: target, length: 0x10, group: 0, command: 0x81), delay: delay) else { return nil }
         let version = payload[0..<4].map(String.init).joined(separator: ".")
         let pid = String(format: "%02X%02X", payload[4], payload[5])
         return (version, pid)

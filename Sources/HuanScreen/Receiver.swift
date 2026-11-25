@@ -24,14 +24,6 @@ final class Receiver {
 
     var isConnected: Bool { channel != nil }
 
-    var mode: ScreenMode? {
-        sendScreenCommand(0x8A).map { $0 == 0 ? .cat : .status }
-    }
-
-    var mouseInfo: MouseInfo? {
-        channel.flatMap(MouseInfo.read)
-    }
-
     init() {
         IOHIDManagerSetDeviceMatching(manager, [
             kIOHIDVendorIDKey: Self.vendorID,
@@ -57,44 +49,55 @@ final class Receiver {
         IOHIDManagerScheduleWithRunLoop(manager, CFRunLoopGetMain(), CFRunLoopMode.defaultMode.rawValue)
     }
 
-    @discardableResult
-    func setMode(_ mode: ScreenMode) -> Bool {
-        sendScreenCommand(0x0A, value: mode == .status ? 1 : 0) != nil
-    }
-
-    @discardableResult
-    func selectDPIStage(_ stage: Int, profile: UInt8) -> Bool {
-        let request = HIDRequest(target: MouseInfo.mouse, length: 2, group: 1, command: 0x02, parameters: [profile, UInt8(stage)])
-        return channel?.send(request, delay: MouseInfo.delay) != nil
-    }
-
-    @discardableResult
-    func selectPollingRate(_ rate: Int, profile: UInt8) -> Bool {
-        guard let code = MouseInfo.pollingRateCodes[rate] else { return false }
-        let request = HIDRequest(target: MouseInfo.mouse, length: 2, group: 1, command: 0x00, parameters: [profile, code])
-        return channel?.send(request, delay: MouseInfo.delay) != nil
-    }
-
-    @discardableResult
-    func selectLiftOffDistance(_ distance: Double, mode: UInt8, profile: UInt8) -> Bool {
-        let value = MouseInfo.encodeLiftOffDistance(distance)
-        let request = HIDRequest(target: MouseInfo.mouse, length: 3, group: 1, command: 0x08, parameters: [profile, value, mode])
-        return channel?.send(request, delay: MouseInfo.delay) != nil
-    }
-
-    func readFirmware() async -> InstalledFirmware? {
-        guard let channel else { return nil }
-        return await Task.detached { InstalledFirmware.read(from: channel) }.value
+    func readMode() async -> ScreenMode? {
+        await sendScreenCommand(0x8A).map { $0 == 0 ? .cat : .status }
     }
 
     func readMouseInfo() async -> MouseInfo? {
-        guard let channel else { return nil }
-        return await Task.detached { MouseInfo.read(from: channel) }.value
+        await perform(MouseInfo.read)
     }
 
-    private func sendScreenCommand(_ command: UInt8, value: UInt8 = 0) -> UInt8? {
+    func readFirmware() async -> InstalledFirmware? {
+        await perform(InstalledFirmware.read)
+    }
+
+    @discardableResult
+    func setMode(_ mode: ScreenMode) async -> Bool {
+        await sendScreenCommand(0x0A, value: mode == .status ? 1 : 0) != nil
+    }
+
+    @discardableResult
+    func selectDPIStage(_ stage: Int, profile: UInt8) async -> Bool {
+        let request = HIDRequest(target: MouseInfo.mouse, length: 2, group: 1, command: 0x02, parameters: [profile, UInt8(stage)])
+        return await send(request, delay: MouseInfo.delay) != nil
+    }
+
+    @discardableResult
+    func selectPollingRate(_ rate: Int, profile: UInt8) async -> Bool {
+        guard let code = MouseInfo.pollingRateCodes[rate] else { return false }
+        let request = HIDRequest(target: MouseInfo.mouse, length: 2, group: 1, command: 0x00, parameters: [profile, code])
+        return await send(request, delay: MouseInfo.delay) != nil
+    }
+
+    @discardableResult
+    func selectLiftOffDistance(_ distance: Double, mode: UInt8, profile: UInt8) async -> Bool {
+        let value = MouseInfo.encodeLiftOffDistance(distance)
+        let request = HIDRequest(target: MouseInfo.mouse, length: 3, group: 1, command: 0x08, parameters: [profile, value, mode])
+        return await send(request, delay: MouseInfo.delay) != nil
+    }
+
+    private func sendScreenCommand(_ command: UInt8, value: UInt8 = 0) async -> UInt8? {
         let request = HIDRequest(target: Self.dongle, length: 1, group: 5, command: command, parameters: [value])
-        return channel?.send(request, delay: Self.screenDelay)?[0]
+        return await send(request, delay: Self.screenDelay)?[0]
+    }
+
+    private func send(_ request: HIDRequest, delay: useconds_t) async -> [UInt8]? {
+        await perform { $0.send(request, delay: delay) }
+    }
+
+    private func perform<T: Sendable>(_ work: @escaping @Sendable (HIDTransport) -> T?) async -> T? {
+        guard let channel else { return nil }
+        return await channel.perform(work)
     }
 
     private func attachFirstAvailableDevice() {

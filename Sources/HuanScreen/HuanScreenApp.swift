@@ -6,7 +6,8 @@ enum HuanScreenApp {
     static func main() {
         let arguments = CommandLine.arguments.dropFirst()
         guard let command = arguments.first else { return runMenuBarApp() }
-        exit(CommandLineInterface.run(command))
+        Task { exit(await CommandLineInterface.run(command)) }
+        dispatchMain()
     }
 
     private static func runMenuBarApp() {

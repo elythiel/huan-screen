@@ -15,7 +15,7 @@ enum CommandLineInterface {
           toggle    Switch to the other mode
         """
 
-    static func run(_ command: String) -> Int32 {
+    static func run(_ command: String) async -> Int32 {
         if ["-h", "--help", "help"].contains(command) {
             print(usage)
             return EXIT_SUCCESS
@@ -25,18 +25,20 @@ enum CommandLineInterface {
         guard receiver.isConnected else { return fail("HUAN receiver not found") }
 
         switch command {
-        case "get": return printMode(receiver.mode)
-        case "info": return printMouseInfo(receiver.mouseInfo)
-        case "cat": return set(.cat, on: receiver)
-        case "status": return set(.status, on: receiver)
-        case "toggle": return receiver.mode.map { set($0.toggled, on: receiver) } ?? fail("Unable to read the screen mode")
+        case "get": return printMode(await receiver.readMode())
+        case "info": return printMouseInfo(await receiver.readMouseInfo())
+        case "cat": return await set(.cat, on: receiver)
+        case "status": return await set(.status, on: receiver)
+        case "toggle":
+            guard let mode = await receiver.readMode() else { return fail("Unable to read the screen mode") }
+            return await set(mode.toggled, on: receiver)
         default: return fail("Unknown command: \(command)\n\n\(usage)")
         }
     }
 
-    private static func set(_ mode: ScreenMode, on receiver: Receiver) -> Int32 {
-        guard receiver.setMode(mode) else { return fail("Unable to set the screen mode") }
-        return printMode(receiver.mode)
+    private static func set(_ mode: ScreenMode, on receiver: Receiver) async -> Int32 {
+        guard await receiver.setMode(mode) else { return fail("Unable to set the screen mode") }
+        return printMode(await receiver.readMode())
     }
 
     private static func printMode(_ mode: ScreenMode?) -> Int32 {
