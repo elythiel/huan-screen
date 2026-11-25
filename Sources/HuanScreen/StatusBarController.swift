@@ -4,6 +4,8 @@ import ServiceManagement
 @MainActor
 final class StatusBarController: NSObject, NSMenuDelegate {
     private static let refreshInterval: TimeInterval = 15
+    private static let catSymbol = "cat.fill"
+    private static let statusSymbol = "gauge.with.dots.needle.67percent"
 
     private let receiver: Receiver
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
@@ -58,16 +60,19 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     private func updateButton() {
         guard let button = statusItem.button else { return }
-        let (symbol, label) = switch mode {
-        case .cat: ("cat.fill", "Cat mode")
-        case .status: ("gauge.with.dots.needle.67percent", "Status mode")
-        case nil: ("computermouse", "Receiver not found")
-        }
-        let image = NSImage(systemSymbolName: symbol, accessibilityDescription: label)
-        image?.isTemplate = true
-        button.image = image
+        button.image = symbolImage(Self.catSymbol, label: "Huan Screen")
         button.appearsDisabled = mode == nil
-        button.toolTip = label
+        button.toolTip = switch mode {
+        case .cat: "Cat mode"
+        case .status: "Status mode"
+        case nil: "Receiver not found"
+        }
+    }
+
+    private func symbolImage(_ name: String, label: String) -> NSImage? {
+        let image = NSImage(systemSymbolName: name, accessibilityDescription: label)
+        image?.isTemplate = true
+        return image
     }
 
     @objc private func showMenu() {
@@ -87,8 +92,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         addHeader(to: menu)
         menu.addItem(.separator())
 
-        menu.addItem(modeItem(title: "Cat mode", mode: .cat, action: #selector(selectCat)))
-        menu.addItem(modeItem(title: "Status mode", mode: .status, action: #selector(selectStatus)))
+        menu.addItem(modeItem(title: "Cat mode", mode: .cat, symbol: Self.catSymbol, action: #selector(selectCat)))
+        menu.addItem(modeItem(title: "Status mode", mode: .status, symbol: Self.statusSymbol, action: #selector(selectStatus)))
         menu.addItem(.separator())
 
         let login = NSMenuItem(title: "Open at Login", action: #selector(toggleOpenAtLogin), keyEquivalent: "")
@@ -131,9 +136,10 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         specsItem.isHidden = mouseInfo.specsDescription.isEmpty
     }
 
-    private func modeItem(title: String, mode itemMode: ScreenMode, action: Selector) -> NSMenuItem {
+    private func modeItem(title: String, mode itemMode: ScreenMode, symbol: String, action: Selector) -> NSMenuItem {
         let item = NSMenuItem(title: title, action: receiver.isConnected ? action : nil, keyEquivalent: "")
         item.target = self
+        item.image = symbolImage(symbol, label: title)
         item.state = mode == itemMode ? .on : .off
         return item
     }

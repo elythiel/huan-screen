@@ -52,14 +52,14 @@ Click the icon to open the menu:
 ▭ 76%
 1600 DPI · 1000 Hz · LOD 1 mm
 ───────────────
-✓ Cat mode
-  Status mode
+✓ 🐱 Cat mode
+  📊 Status mode
 ───────────────
   Open at Login
   Quit Huan Screen
 ```
 
-The battery turns red below 20% and shows a bolt while charging. The icon reflects the current mode and is dimmed when the receiver is not plugged in.
+The battery turns red below 20% and shows a bolt while charging. The menu bar always shows the cat icon, dimmed when the receiver is not plugged in; hover it to see the current mode.
 
 Everything is refreshed every 15 seconds, when the receiver is plugged or unplugged, and when the menu opens. A sleeping mouse does not answer: the menu then keeps the last known values.
 
