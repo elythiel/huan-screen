@@ -32,6 +32,7 @@ struct MouseInfo: Sendable, Equatable {
 
 extension MouseInfo {
     static let mouse: UInt8 = 0x02
+    private static let maxChargingLevel = 99
     static let delay: useconds_t = 60_000
     private static let defaultProfile: UInt8 = 1
     private static let maxDPIStages: UInt8 = 6
@@ -47,7 +48,7 @@ extension MouseInfo {
         let liftOff = transport.send(HIDRequest(target: mouse, length: 3, group: 1, command: 0x88, parameters: [profile]), delay: delay)
 
         return MouseInfo(
-            batteryLevel: Int(battery[1]),
+            batteryLevel: battery[0] == 1 ? min(Int(battery[1]), maxChargingLevel) : Int(battery[1]),
             isCharging: battery[0] == 1,
             profile: profile,
             dpiStages: readDPIStages(from: transport, profile: profile),

@@ -76,7 +76,7 @@ Click the icon to open the menu:
 
 <img src="docs/menu.png" alt="Huan Screen menu" width="266">
 
-The battery turns red at 20% and shows a bolt while charging. While the mouse charges, and at 20% and below, the level also shows next to the cat in the menu bar (with a bolt while charging), and a notification warns you at 20%, then 10% (re-armed once the mouse charges or goes back above 25%). The menu bar always shows the cat icon, dimmed when the receiver is not plugged in; hover it to see the current mode.
+The battery turns red at 20% and shows a bolt while charging. While the mouse charges (shown at 99%h at most, since the mouse overestimates its level while carging, like the WLMOUSE Hub does), and at 20% and below, the level also shows next to the cat in the menu bar (with a bolt while charging), and a notification warns you at 20%, then 10% (re-armed once the mouse charges or goes back above 25%). The menu bar always shows the cat icon, dimmed when the receiver is not plugged in; hover it to see the current mode.
 
 The **DPI** submenu lists the DPI stages of the active profile and switches to the one you pick. The **Polling Rate** submenu sets the polling rate from 125 to 8000 Hz (a lower rate saves battery). The **Lift-off Distance** submenu sets it to 0.7, 1 or 2 mm.
 
