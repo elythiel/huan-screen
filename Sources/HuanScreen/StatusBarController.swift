@@ -87,9 +87,9 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     private func updateButton() {
         guard let button = statusItem.button else { return }
-        button.image = symbolImage(Self.catSymbol, label: "Huan Screen")
+        button.image = MenuBarIcon.image(isCharging: mouseInfo?.isCharging == true)
         button.imagePosition = .imageLeading
-        button.title = lowBatteryLevel.map { localized(" %ld%%", $0) } ?? ""
+        button.title = menuBarBatteryLevel.map { localized(" %ld%%", $0) } ?? ""
         button.appearsDisabled = mode == nil
         button.toolTip = switch mode {
         case .cat: localized("Cat mode")
@@ -171,8 +171,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         return item
     }
 
-    private var lowBatteryLevel: Int? {
-        guard let mouseInfo, !mouseInfo.isCharging, mouseInfo.batteryLevel <= BatteryIcon.lowThreshold else { return nil }
+    private var menuBarBatteryLevel: Int? {
+        guard let mouseInfo, mouseInfo.isCharging || mouseInfo.batteryLevel <= BatteryIcon.lowThreshold else { return nil }
         return mouseInfo.batteryLevel
     }
 
