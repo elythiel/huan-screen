@@ -123,6 +123,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
         let login = NSMenuItem(title: localized("Open at Login"), action: #selector(toggleOpenAtLogin), keyEquivalent: "")
         login.target = self
+        login.image = symbolImage("power", label: localized("Open at Login"))
         login.state = SMAppService.mainApp.status == .enabled ? .on : .off
         menu.addItem(login)
 
