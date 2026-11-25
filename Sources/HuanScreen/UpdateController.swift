@@ -17,6 +17,7 @@ final class UpdateController {
     private static let notifiedVersionKey = "lastNotifiedUpdateVersion"
 
     var onChange: (() -> Void)?
+    var onCheck: ((Bool) -> Void)?
     private(set) var state = UpdateState.unknown {
         didSet { onChange?() }
     }
@@ -38,6 +39,7 @@ final class UpdateController {
     }
 
     func check(notify: Bool = false) {
+        onCheck?(notify)
         guard state != .checking, !isInstalling else { return }
         state = .checking
         Task {

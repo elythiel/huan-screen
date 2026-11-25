@@ -68,6 +68,11 @@ final class Receiver {
         return channel?.send(request, delay: MouseInfo.delay) != nil
     }
 
+    func readFirmware() async -> InstalledFirmware? {
+        guard let channel else { return nil }
+        return await Task.detached { InstalledFirmware.read(from: channel) }.value
+    }
+
     func readMouseInfo() async -> MouseInfo? {
         guard let channel else { return nil }
         return await Task.detached { MouseInfo.read(from: channel) }.value

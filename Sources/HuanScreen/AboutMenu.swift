@@ -5,6 +5,8 @@ final class AboutMenu: NSObject {
     let item = NSMenuItem(title: localized("About Huan Screen"), action: nil, keyEquivalent: "")
 
     private let updates: UpdateController
+    private let firmware: FirmwareController
+    private let firmwareRows: FirmwareRows
     private let versionRow = MenuRowView(title: "")
     private let updateRow = MenuRowView(title: "", symbol: "arrow.down.circle", closesMenu: true)
     private let checkRow = MenuRowView(title: "", symbol: "arrow.clockwise")
@@ -14,24 +16,30 @@ final class AboutMenu: NSObject {
     private let checkItem = NSMenuItem()
     private let githubItem = NSMenuItem()
 
-    init(updates: UpdateController) {
+    init(updates: UpdateController, firmware: FirmwareController) {
         self.updates = updates
+        self.firmware = firmware
+        firmwareRows = FirmwareRows(firmware: firmware)
         super.init()
 
         updateRow.action = { [weak self] in self?.updates.install() }
-        checkRow.action = { [weak self] in self?.updates.check() }
+        checkRow.action = { [weak self] in
+            self?.updates.check()
+            self?.firmware.check()
+        }
         githubRow.action = { NSWorkspace.shared.open(UpdateChecker.repositoryURL) }
 
-        let width = longestTitles.map(MenuRowView.preferredWidth).max() ?? 0
         let submenu = NSMenu()
         submenu.autoenablesItems = false
         for (menuItem, row) in [(versionItem, versionRow), (updateItem, updateRow), (checkItem, checkRow), (githubItem, githubRow)] {
-            row.frame.size.width = width
             menuItem.view = row
-            if menuItem === githubItem { submenu.addItem(.separator()) }
-            submenu.addItem(menuItem)
         }
         versionItem.isEnabled = false
+        for menuItem in [versionItem, updateItem, checkItem] + firmwareRows.items + [.separator(), githubItem] {
+            submenu.addItem(menuItem)
+        }
+        let width = (longestTitles + firmwareRows.longestTitles).map(MenuRowView.preferredWidth).max() ?? 0
+        for menuItem in submenu.items { menuItem.view?.frame.size.width = width }
 
         item.submenu = submenu
         item.image = NSImage(systemSymbolName: "info.circle", accessibilityDescription: "About")
@@ -39,7 +47,8 @@ final class AboutMenu: NSObject {
     }
 
     func update() {
-        item.title = updates.availableUpdate == nil ? localized("About Huan Screen") : localized("About Huan Screen — update available")
+        let hasUpdate = updates.availableUpdate != nil || firmware.status?.isUpdateAvailable == true
+        item.title = hasUpdate ? localized("About Huan Screen — update available") : localized("About Huan Screen")
         versionRow.title = versionTitle
 
         switch updates.state {
@@ -58,6 +67,7 @@ final class AboutMenu: NSObject {
         checkRow.title = updates.state == .checking ? localized("Checking for Updates…") : localized("Check for Updates")
         checkItem.isEnabled = !isBusy
         for row in [versionRow, updateRow, checkRow] { row.needsDisplay = true }
+        firmwareRows.update()
     }
 
     private var longestTitles: [String] {
@@ -85,7 +95,7 @@ final class AboutMenu: NSObject {
     private var isBusy: Bool {
         switch updates.state {
         case .checking, .installing: true
-        default: false
+        default: firmware.state == .checking
         }
     }
 }

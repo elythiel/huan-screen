@@ -22,6 +22,7 @@ macOS menu bar app to switch the **WLMOUSE HUAN 8K receiver** screen between cat
 - Switch DPI stages from the menu
 - Low battery notifications at 20% and 10%
 - One-click updates from the menu
+- Firmware update check for the mouse and the receiver
 - Command line interface for scripts and keyboard shortcuts
 
 ## Requirements
@@ -79,7 +80,11 @@ The battery turns red below 20% and shows a bolt while charging. A notification 
 
 The **DPI** submenu lists the DPI stages of the active profile and switches to the one you pick.
 
-**About Huan Screen** shows the current version and checks GitHub for a newer release at launch, then once a day (you get a notification once per new version). **Update to vX.Y.Z** downloads the release, verifies its SHA-256 against the one published by GitHub, replaces the app and relaunches it. **Check for Updates** checks right away. The only network request the app makes is this check, to `api.github.com`.
+**About Huan Screen** shows the current version and checks GitHub for a newer release at launch, then once a day (you get a notification once per new version). **Update to vX.Y.Z** downloads the release, verifies its SHA-256 against the one published by GitHub, replaces the app and relaunches it. **Check for Updates** checks right away.
+
+The same submenu shows the firmware versions of the mouse and the receiver, and compares them with the latest ones listed by the [WLMOUSE Hub](https://gm.wlmouse.gg). When a newer firmware is out, **Update in WLMOUSE Hub…** opens the hub, where the update happens (the app never flashes firmware itself).
+
+The only network requests the app makes are these checks, to `api.github.com` and `gm.wlmouse.gg`.
 
 Everything is refreshed every 15 seconds, when the receiver is plugged or unplugged, and when the menu opens. A sleeping mouse does not answer: the menu then keeps the last known values.
 

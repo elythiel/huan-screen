@@ -10,6 +10,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private let receiver: Receiver
     private let lowBatteryNotifier = LowBatteryNotifier()
     private let updates = UpdateController()
+    private let firmware: FirmwareController
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private var mode: ScreenMode?
     private var mouseInfo: MouseInfo?
@@ -22,12 +23,15 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     init(receiver: Receiver) {
         self.receiver = receiver
+        firmware = FirmwareController(receiver: receiver)
         super.init()
 
         receiver.onConnectionChange = { [weak self] in self?.refresh() }
         receiver.watchConnections()
 
         updates.onChange = { [weak self] in self?.aboutMenu?.update() }
+        updates.onCheck = { [weak self] notify in self?.firmware.check(notify: notify) }
+        firmware.onChange = { [weak self] in self?.aboutMenu?.update() }
         updates.start()
 
         statusItem.button?.target = self
@@ -116,7 +120,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         login.state = SMAppService.mainApp.status == .enabled ? .on : .off
         menu.addItem(login)
 
-        let aboutMenu = AboutMenu(updates: updates)
+        let aboutMenu = AboutMenu(updates: updates, firmware: firmware)
         self.aboutMenu = aboutMenu
         menu.addItem(aboutMenu.item)
         menu.addItem(.separator())

@@ -39,3 +39,14 @@
 "%@ failed while installing the update." = "%@ a échoué pendant l’installation de la mise à jour.";
 "GitHub returned an unexpected response." = "GitHub a renvoyé une réponse inattendue.";
 "The latest release has no downloadable app." = "La dernière version ne contient pas d’app à télécharger.";
+
+"Mouse firmware %@" = "Firmware souris %@";
+"Mouse firmware %@ → %@" = "Firmware souris %@ → %@";
+"Receiver firmware %@" = "Firmware récepteur %@";
+"Receiver firmware %@ → %@" = "Firmware récepteur %@ → %@";
+"Update in WLMOUSE Hub…" = "Mettre à jour dans le WLMOUSE Hub…";
+"Firmware up to date" = "Firmware à jour";
+"Checking firmware…" = "Vérification du firmware…";
+"Couldn't check firmware" = "Vérification du firmware impossible";
+"Firmware update available" = "Mise à jour du firmware disponible";
+"Update your HUAN with the WLMOUSE Hub." = "Mettez à jour votre HUAN avec le WLMOUSE Hub.";
