@@ -8,7 +8,11 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private let receiver: Receiver
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private var mode: ScreenMode?
+    private var mouseInfo: MouseInfo?
+    private var isReadingMouse = false
     private var refreshTimer: Timer?
+    private weak var batteryItem: NSMenuItem?
+    private weak var specsItem: NSMenuItem?
 
     init(receiver: Receiver) {
         self.receiver = receiver
@@ -35,6 +39,21 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private func refresh() {
         mode = receiver.mode
         updateButton()
+        refreshMouseInfo()
+    }
+
+    private func refreshMouseInfo() {
+        guard receiver.isConnected else {
+            mouseInfo = nil
+            return updateMouseItems()
+        }
+        guard !isReadingMouse else { return }
+        isReadingMouse = true
+        Task {
+            if let info = await receiver.readMouseInfo() { mouseInfo = info }
+            isReadingMouse = false
+            updateMouseItems()
+        }
     }
 
     private func updateButton() {
@@ -65,9 +84,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         let menu = NSMenu()
         menu.delegate = self
 
-        let header = NSMenuItem(title: receiver.isConnected ? "HUAN receiver connected" : "HUAN receiver not found", action: nil, keyEquivalent: "")
-        header.isEnabled = false
-        menu.addItem(header)
+        addHeader(to: menu)
         menu.addItem(.separator())
 
         menu.addItem(modeItem(title: "Cat mode", mode: .cat, action: #selector(selectCat)))
@@ -82,6 +99,36 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
         menu.addItem(NSMenuItem(title: "Quit Huan Screen", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         return menu
+    }
+
+    private func addHeader(to menu: NSMenu) {
+        guard receiver.isConnected else { return menu.addItem(infoItem("HUAN receiver not found")) }
+        let battery = infoItem("")
+        let specs = infoItem("")
+        menu.addItem(battery)
+        menu.addItem(specs)
+        batteryItem = battery
+        specsItem = specs
+        updateMouseItems()
+    }
+
+    private func infoItem(_ title: String) -> NSMenuItem {
+        let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        item.isEnabled = false
+        return item
+    }
+
+    private func updateMouseItems() {
+        guard let batteryItem, let specsItem else { return }
+        guard let mouseInfo else {
+            batteryItem.attributedTitle = nil
+            batteryItem.title = isReadingMouse ? "Reading mouse…" : "Mouse not responding"
+            specsItem.isHidden = true
+            return
+        }
+        batteryItem.attributedTitle = BatteryIcon.label(level: mouseInfo.batteryLevel, isCharging: mouseInfo.isCharging)
+        specsItem.title = mouseInfo.specsDescription
+        specsItem.isHidden = mouseInfo.specsDescription.isEmpty
     }
 
     private func modeItem(title: String, mode itemMode: ScreenMode, action: Selector) -> NSMenuItem {

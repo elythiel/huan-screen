@@ -9,6 +9,7 @@ enum CommandLineInterface {
 
         Commands:
           get       Print the current screen mode
+          info      Print the mouse battery, DPI, polling rate and lift-off distance
           cat       Switch to cat mode
           status    Switch to status mode
           toggle    Switch to the other mode
@@ -20,6 +21,7 @@ enum CommandLineInterface {
 
         switch command {
         case "get": return printMode(receiver.mode)
+        case "info": return printMouseInfo(receiver.mouseInfo)
         case "cat": return set(.cat, on: receiver)
         case "status": return set(.status, on: receiver)
         case "toggle": return receiver.mode.map { set($0.toggled, on: receiver) } ?? fail("Unable to read the screen mode")
@@ -38,6 +40,13 @@ enum CommandLineInterface {
     private static func printMode(_ mode: ScreenMode?) -> Int32 {
         guard let mode else { return fail("Unable to read the screen mode") }
         print(mode == .cat ? "cat" : "status")
+        return EXIT_SUCCESS
+    }
+
+    private static func printMouseInfo(_ info: MouseInfo?) -> Int32 {
+        guard let info else { return fail("Mouse not responding") }
+        print("battery: \(info.batteryLevel)%\(info.isCharging ? " (charging)" : "")")
+        if !info.specsDescription.isEmpty { print(info.specsDescription) }
         return EXIT_SUCCESS
     }
 

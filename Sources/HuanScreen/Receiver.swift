@@ -13,23 +13,23 @@ final class Receiver {
     private static let vendorID = 0x36A7
     private static let productID = 0xA863
     private static let vendorUsagePage = 0xFFFF
-    private static let reportLength = 64
-    private static let responseDelay: useconds_t = 30_000
-
-    private enum Command: UInt8 {
-        case setStatus = 0x0A
-        case getStatus = 0x8A
-    }
+    private static let dongle: UInt8 = 0x00
+    private static let screenDelay: useconds_t = 30_000
 
     var onConnectionChange: (() -> Void)?
 
     private let manager = IOHIDManagerCreate(kCFAllocatorDefault, IOOptionBits(kIOHIDOptionsTypeNone))
     private var device: IOHIDDevice?
+    private var channel: HIDChannel?
 
-    var isConnected: Bool { device != nil }
+    var isConnected: Bool { channel != nil }
 
     var mode: ScreenMode? {
-        transact(.getStatus).map { $0 == 0 ? .cat : .status }
+        sendScreenCommand(0x8A).map { $0 == 0 ? .cat : .status }
+    }
+
+    var mouseInfo: MouseInfo? {
+        channel.flatMap(MouseInfo.read)
     }
 
     init() {
@@ -59,7 +59,17 @@ final class Receiver {
 
     @discardableResult
     func setMode(_ mode: ScreenMode) -> Bool {
-        transact(.setStatus, value: mode == .status ? 1 : 0) != nil
+        sendScreenCommand(0x0A, value: mode == .status ? 1 : 0) != nil
+    }
+
+    func readMouseInfo() async -> MouseInfo? {
+        guard let channel else { return nil }
+        return await Task.detached { MouseInfo.read(from: channel) }.value
+    }
+
+    private func sendScreenCommand(_ command: UInt8, value: UInt8 = 0) -> UInt8? {
+        let request = HIDRequest(target: Self.dongle, length: 1, group: 5, command: command, parameters: [value])
+        return channel?.send(request, delay: Self.screenDelay)?[0]
     }
 
     private func attachFirstAvailableDevice() {
@@ -71,33 +81,14 @@ final class Receiver {
         guard device != newDevice else { return }
         IOHIDDeviceOpen(newDevice, IOOptionBits(kIOHIDOptionsTypeNone))
         device = newDevice
+        channel = HIDChannel(device: newDevice)
         onConnectionChange?()
     }
 
     private func detach(_ removedDevice: IOHIDDevice) {
         guard device == removedDevice else { return }
         device = nil
+        channel = nil
         onConnectionChange?()
-    }
-
-    private func transact(_ command: Command, value: UInt8 = 0) -> UInt8? {
-        guard let device else { return nil }
-
-        var request = [UInt8](repeating: 0, count: Self.reportLength)
-        request[3] = 0x01
-        request[4] = 0x05
-        request[5] = command.rawValue
-        request[6] = value
-        guard IOHIDDeviceSetReport(device, kIOHIDReportTypeFeature, 0, request, request.count) == kIOReturnSuccess else { return nil }
-
-        usleep(Self.responseDelay)
-
-        var response = [UInt8](repeating: 0, count: Self.reportLength)
-        var length = CFIndex(response.count)
-        guard IOHIDDeviceGetReport(device, kIOHIDReportTypeFeature, 0, &response, &length) == kIOReturnSuccess,
-              length > 6,
-              response[5] == command.rawValue
-        else { return nil }
-        return response[6]
     }
 }
