@@ -51,8 +51,8 @@ make install
 
 ### Releasing
 
-1. Bump `CFBundleShortVersionString` (and `CFBundleVersion`) in `Resources/Info.plist` and commit.
-2. Push a matching tag: `git tag v0.2.0 && git push origin v0.2.0`.
+1. `make bump V=0.3.0` sets the version in `Resources/Info.plist`, increments the build number, commits it and creates the annotated tag `v0.3.0` (your editor opens for the tag message).
+2. Publish: `git push && git push origin v0.3.0`.
 
 GitHub Actions then builds the app, checks the tag matches the version, and publishes the release with the zip, install notes, SHA-256 and changelog.
 

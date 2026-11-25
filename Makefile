@@ -6,7 +6,7 @@ SWIFTC_FLAGS := -O -swift-version 6 -parse-as-library -framework IOKit -framewor
 VERSION := $(shell /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" Resources/Info.plist)
 RELEASE_ZIP := build/$(APP_NAME)-$(VERSION).zip
 
-.PHONY: app install uninstall release clean
+.PHONY: app install uninstall release bump clean
 
 build/$(APP_NAME)-arm64: $(SOURCES)
 	mkdir -p build
@@ -39,6 +39,18 @@ release: app
 	rm -f "$(RELEASE_ZIP)"
 	ditto -c -k --sequesterRsrc --keepParent "$(APP)" "$(RELEASE_ZIP)"
 	shasum -a 256 "$(RELEASE_ZIP)"
+
+bump:
+	@test -n "$(V)" || { echo "Usage: make bump V=x.y.z"; exit 1; }
+	@echo "$(V)" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$$' || { echo "Invalid version: $(V) (expected x.y.z)"; exit 1; }
+	@test "$(V)" != "$(VERSION)" || { echo "Already at version $(V)"; exit 1; }
+	@! git rev-parse --quiet --verify "refs/tags/v$(V)" >/dev/null || { echo "Tag v$(V) already exists"; exit 1; }
+	@BUILD=$$(( $$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" Resources/Info.plist) + 1 )); \
+	/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $(V)" -c "Set :CFBundleVersion $$BUILD" Resources/Info.plist && \
+	git commit --quiet -m "🔖 chore: version $(V)" -- Resources/Info.plist && \
+	echo "Version $(V) (build $$BUILD) committed."
+	@git tag -a "v$(V)" -e -m "v$(V)" || { echo "Tag not created. Run: git tag -a v$(V)"; exit 1; }
+	@echo "Tag v$(V) created. Publish with: git push && git push origin v$(V)"
 
 clean:
 	rm -rf build
