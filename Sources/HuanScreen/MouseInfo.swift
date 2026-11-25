@@ -6,7 +6,7 @@ struct MouseInfo: Sendable, Equatable {
     let profile: UInt8
     let dpiStages: [Int]
     var activeDPIStage: Int?
-    let pollingRate: Int?
+    var pollingRate: Int?
     let liftOffDistance: Double?
 
     var dpi: Int? {
@@ -31,6 +31,8 @@ extension MouseInfo {
     private static let defaultProfile: UInt8 = 1
     private static let maxDPIStages: UInt8 = 6
     private static let bytesPerDPIStage = 4
+    static let supportedPollingRates = [125, 250, 500, 1000, 2000, 4000, 8000]
+    static let pollingRateCodes: [Int: UInt8] = [125: 8, 250: 4, 500: 2, 1000: 1, 2000: 32, 4000: 64, 8000: 128]
     private static let pollingRates: [UInt8: Int] = [8: 125, 4: 250, 2: 500, 1: 1000, 16: 1000, 32: 2000, 64: 4000, 128: 8000]
 
     static func read(from channel: HIDChannel) -> MouseInfo? {

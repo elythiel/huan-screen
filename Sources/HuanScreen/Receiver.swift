@@ -68,6 +68,13 @@ final class Receiver {
         return channel?.send(request, delay: MouseInfo.delay) != nil
     }
 
+    @discardableResult
+    func selectPollingRate(_ rate: Int, profile: UInt8) -> Bool {
+        guard let code = MouseInfo.pollingRateCodes[rate] else { return false }
+        let request = HIDRequest(target: MouseInfo.mouse, length: 2, group: 1, command: 0x00, parameters: [profile, code])
+        return channel?.send(request, delay: MouseInfo.delay) != nil
+    }
+
     func readFirmware() async -> InstalledFirmware? {
         guard let channel else { return nil }
         return await Task.detached { InstalledFirmware.read(from: channel) }.value

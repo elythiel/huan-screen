@@ -50,3 +50,5 @@
 "Couldn't check firmware" = "Vérification du firmware impossible";
 "Firmware update available" = "Mise à jour du firmware disponible";
 "Update your HUAN with the WLMOUSE Hub." = "Mettez à jour votre HUAN avec le WLMOUSE Hub.";
+
+"Polling Rate" = "Fréquence";
