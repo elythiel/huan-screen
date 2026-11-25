@@ -1,7 +1,7 @@
 import AppKit
 
 enum BatteryIcon {
-    private static let lowThreshold = 20
+    static let lowThreshold = 20
 
     static func label(level: Int, isCharging: Bool) -> NSAttributedString {
         let font = NSFont.menuFont(ofSize: 0)
@@ -18,7 +18,7 @@ enum BatteryIcon {
     }
 
     static func image(level: Int, isCharging: Bool) -> NSImage? {
-        let fillColor: NSColor = level < lowThreshold ? .systemRed : .systemGreen
+        let fillColor: NSColor = level <= lowThreshold ? .systemRed : .systemGreen
         let configuration: NSImage.SymbolConfiguration = isCharging ? .preferringMulticolor() : .init(paletteColors: [fillColor, .labelColor])
         return NSImage(systemSymbolName: symbolName(level: level, isCharging: isCharging), accessibilityDescription: localized("Battery %ld%%", level))?
             .withSymbolConfiguration(configuration)

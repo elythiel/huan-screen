@@ -11,7 +11,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private let lowBatteryNotifier = LowBatteryNotifier()
     private let updates = UpdateController()
     private let firmware: FirmwareController
-    private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+    private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     private var mode: ScreenMode?
     private var mouseInfo: MouseInfo?
     private var isReadingMouse = false
@@ -88,6 +88,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private func updateButton() {
         guard let button = statusItem.button else { return }
         button.image = symbolImage(Self.catSymbol, label: "Huan Screen")
+        button.imagePosition = .imageLeading
+        button.title = lowBatteryLevel.map { localized(" %ld%%", $0) } ?? ""
         button.appearsDisabled = mode == nil
         button.toolTip = switch mode {
         case .cat: localized("Cat mode")
@@ -169,7 +171,13 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         return item
     }
 
+    private var lowBatteryLevel: Int? {
+        guard let mouseInfo, !mouseInfo.isCharging, mouseInfo.batteryLevel <= BatteryIcon.lowThreshold else { return nil }
+        return mouseInfo.batteryLevel
+    }
+
     private func updateMouseItems() {
+        updateButton()
         mouseSettings?.update()
         guard let batteryItem else { return }
         guard let mouseInfo else {

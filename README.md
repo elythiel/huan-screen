@@ -20,7 +20,7 @@ macOS menu bar app to switch the **WLMOUSE HUAN 8K receiver** screen between cat
 - Switch the receiver screen between cat and status modes
 - Mouse battery level, DPI, polling rate and lift-off distance at a glance
 - Switch DPI stages, polling rate and lift-off distance from the menu
-- Low battery notifications at 20% and 10%
+- Low battery level in the menu bar and notifications at 20% and 10%
 - One-click updates from the menu
 - Firmware update check for the mouse and the receiver
 - Command line interface for scripts and keyboard shortcuts
@@ -76,7 +76,7 @@ Click the icon to open the menu:
 
 <img src="docs/menu.png" alt="Huan Screen menu" width="266">
 
-The battery turns red below 20% and shows a bolt while charging. A notification warns you when the battery drops to 20%, then 10%; it is re-armed once the mouse charges or goes back above 25%. The menu bar always shows the cat icon, dimmed when the receiver is not plugged in; hover it to see the current mode.
+The battery turns red at 20% and shows a bolt while charging. At 20% and below, the level also shows next to the cat in the menu bar, and a notification warns you at 20%, then 10% (re-armed once the mouse charges or goes back above 25%). The menu bar always shows the cat icon, dimmed when the receiver is not plugged in; hover it to see the current mode.
 
 The **DPI** submenu lists the DPI stages of the active profile and switches to the one you pick. The **Polling Rate** submenu sets the polling rate from 125 to 8000 Hz (a lower rate saves battery). The **Lift-off Distance** submenu sets it to 0.7, 1 or 2 mm.
 
