@@ -1,14 +1,14 @@
 "Updates" = "Mises à jour";
-"Updates — update available" = "Mises à jour — nouvelle version disponible";
+"Updates (update available)" = "Mises à jour (nouvelle version disponible)";
 "View on GitHub" = "Voir sur GitHub";
 "Update to v%@" = "Mettre à jour vers la v%@";
 "Installing v%@…" = "Installation de la v%@…";
 "Check for Updates" = "Rechercher des mises à jour";
 "Checking for Updates…" = "Recherche de mises à jour…";
 "Version %@" = "Version %@";
-"Version %@ — checking…" = "Version %@ — vérification…";
-"Version %@ — up to date" = "Version %@ — à jour";
-"Version %@ — couldn't check for updates" = "Version %@ — vérification impossible";
+"Version %@ (checking…)" = "Version %@ (vérification…)";
+"Version %@ (up to date)" = "Version %@ (à jour)";
+"Version %@ (couldn't check for updates)" = "Version %@ (vérification impossible)";
 
 "Cat mode" = "Mode chat";
 "Status mode" = "Mode status";
@@ -20,11 +20,11 @@
 "Reading mouse…" = "Lecture de la souris…";
 "Mouse not responding" = "La souris ne répond pas";
 " %ld%%" = " %ld %%";
-" %ld%% — charging" = " %ld %% — en charge";
+" %ld%% (charging)" = " %ld %% (en charge)";
 "Battery %ld%%" = "Batterie %ld %%";
 
 "Mouse battery low" = "Batterie de la souris faible";
-"%ld%% left — time to charge your HUAN." = "Plus que %ld %% — pensez à recharger votre HUAN.";
+"%ld%% left. Time to charge your HUAN." = "Plus que %ld %%. Pensez à recharger votre HUAN.";
 
 "Huan Screen %@ is available" = "Huan Screen %@ est disponible";
 "Open the menu, then Updates → Update to install it." = "Ouvrez le menu, puis Mises à jour → Mettre à jour pour l’installer.";
@@ -55,3 +55,4 @@
 "Lift-off Distance" = "Distance de décrochage";
 "Charging" = "En charge";
 "WLMOUSE Hub…" = "WLMOUSE Hub…";
+"%@: %@" = "%@ : %@";

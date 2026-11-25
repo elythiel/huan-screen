@@ -37,7 +37,7 @@ final class SettingMenu: NSObject, NSMenuDelegate {
 
     func update() {
         item.isHidden = options().isEmpty
-        item.title = currentValue().map { "\(name) — \($0)" } ?? name
+        item.title = currentValue().map { localized("%@: %@", name, $0) } ?? name
     }
 
     func menuNeedsUpdate(_ menu: NSMenu) {

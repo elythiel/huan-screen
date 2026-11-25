@@ -45,7 +45,7 @@ final class UpdatesMenu: NSObject {
 
     func update() {
         let hasUpdate = updates.availableUpdate != nil || firmware.status?.isUpdateAvailable == true
-        item.title = hasUpdate ? localized("Updates — update available") : localized("Updates")
+        item.title = hasUpdate ? localized("Updates (update available)") : localized("Updates")
         versionRow.title = versionTitle
 
         switch updates.state {
@@ -70,8 +70,8 @@ final class UpdatesMenu: NSObject {
     private var longestTitles: [String] {
         let version = UpdateChecker.currentVersion
         return [
-            localized("Version %@ — couldn't check for updates", version),
-            localized("Version %@ — up to date", version),
+            localized("Version %@ (couldn't check for updates)", version),
+            localized("Version %@ (up to date)", version),
             localized("Installing v%@…", "00.00.00"),
             localized("Update to v%@", "00.00.00"),
             localized("Checking for Updates…"),
@@ -83,9 +83,9 @@ final class UpdatesMenu: NSObject {
         let version = UpdateChecker.currentVersion
         return switch updates.state {
         case .unknown, .available, .installing: localized("Version %@", version)
-        case .checking: localized("Version %@ — checking…", version)
-        case .upToDate: localized("Version %@ — up to date", version)
-        case .failed: localized("Version %@ — couldn't check for updates", version)
+        case .checking: localized("Version %@ (checking…)", version)
+        case .upToDate: localized("Version %@ (up to date)", version)
+        case .failed: localized("Version %@ (couldn't check for updates)", version)
         }
     }
 

@@ -41,8 +41,8 @@ final class FirmwareRows {
         for item in items { item.isHidden = !isVisible }
         guard isVisible else { return }
 
-        let mouse = installed.mouse ?? "—"
-        let receiver = installed.receiver ?? "—"
+        let mouse = installed.mouse ?? "?"
+        let receiver = installed.receiver ?? "?"
         let latestMouse = status?.isMouseOutdated == true ? status?.latest.mouse : nil
         let latestReceiver = status?.isReceiverOutdated == true ? status?.latest.receiver : nil
         mouseRow.title = latestMouse.map { localized("Mouse firmware %@ → %@", mouse, $0) } ?? localized("Mouse firmware %@", mouse)
