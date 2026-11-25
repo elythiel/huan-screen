@@ -28,6 +28,7 @@ app: build/$(APP_NAME)
 
 install: app
 	osascript -e 'quit app id "io.github.elythiel.huan-screen"' 2>/dev/null || true
+	@for i in $$(seq 50); do pgrep -x $(APP_NAME) >/dev/null || break; sleep 0.1; done
 	rm -rf "$(INSTALL_DIR)/Huan Screen.app"
 	cp -R "$(APP)" "$(INSTALL_DIR)/"
 	open "$(INSTALL_DIR)/Huan Screen.app"
