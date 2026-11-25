@@ -8,7 +8,7 @@ final class AboutMenu: NSObject {
     private let versionRow = MenuRowView(title: "")
     private let updateRow = MenuRowView(title: "", symbol: "arrow.down.circle", closesMenu: true)
     private let checkRow = MenuRowView(title: "", symbol: "arrow.clockwise")
-    private let githubRow = MenuRowView(title: "View on GitHub", symbol: "safari", closesMenu: true)
+    private let githubRow = MenuRowView(title: "View on GitHub", symbol: "chevron.left.forwardslash.chevron.right", closesMenu: true)
     private let versionItem = NSMenuItem()
     private let updateItem = NSMenuItem()
     private let checkItem = NSMenuItem()
