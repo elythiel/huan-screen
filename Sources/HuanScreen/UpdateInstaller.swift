@@ -30,9 +30,9 @@ enum UpdateInstaller {
         let workDirectory = try fileManager.url(for: .itemReplacementDirectory, in: .userDomainMask, appropriateFor: appURL, create: true)
         defer { try? fileManager.removeItem(at: workDirectory) }
 
-        try run("/usr/bin/ditto", ["-x", "-k", archive.path, workDirectory.path])
+        try await run("/usr/bin/ditto", ["-x", "-k", archive.path, workDirectory.path])
         let newAppURL = workDirectory.appendingPathComponent(appName)
-        try validate(newAppURL, expectedVersion: update.version)
+        try await validate(newAppURL, expectedVersion: update.version)
 
         _ = try fileManager.replaceItemAt(appURL, withItemAt: newAppURL)
     }
@@ -54,20 +54,27 @@ enum UpdateInstaller {
         return location
     }
 
-    private static func validate(_ appURL: URL, expectedVersion: String) throws {
+    private static func validate(_ appURL: URL, expectedVersion: String) async throws {
         guard let bundle = Bundle(url: appURL),
               bundle.bundleIdentifier == Bundle.main.bundleIdentifier,
               bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String == expectedVersion
         else { throw UpdateInstallError.invalidBundle }
-        try run("/usr/bin/codesign", ["--verify", "--deep", "--strict", appURL.path])
+        try await run("/usr/bin/codesign", ["--verify", "--deep", "--strict", appURL.path])
     }
 
-    private static func run(_ executable: String, _ arguments: [String]) throws {
+    private static func run(_ executable: String, _ arguments: [String]) async throws {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: executable)
         process.arguments = arguments
-        try process.run()
-        process.waitUntilExit()
-        guard process.terminationStatus == 0 else { throw UpdateInstallError.commandFailed(executable) }
+        let status = try await withCheckedThrowingContinuation { continuation in
+            process.terminationHandler = { continuation.resume(returning: $0.terminationStatus) }
+            do {
+                try process.run()
+            } catch {
+                process.terminationHandler = nil
+                continuation.resume(throwing: error)
+            }
+        }
+        guard status == 0 else { throw UpdateInstallError.commandFailed(executable) }
     }
 }
