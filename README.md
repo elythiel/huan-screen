@@ -15,7 +15,14 @@ macOS menu bar app to switch the **WLMOUSE HUAN 8K receiver** screen between cat
   </tr>
 </table>
 
-The menu also shows the mouse battery level, DPI, polling rate and lift-off distance.
+## Features
+
+- Switch the receiver screen between cat and status modes
+- Mouse battery level, DPI, polling rate and lift-off distance at a glance
+- Switch DPI stages from the menu
+- Low battery notifications at 20% and 10%
+- One-click updates from the menu
+- Command line interface for scripts and keyboard shortcuts
 
 ## Requirements
 
@@ -39,6 +46,8 @@ The app is not notarized by Apple, so macOS blocks it on first launch. To allow 
   xattr -dr com.apple.quarantine "/Applications/Huan Screen.app"
   ```
 
+You only do this once: later versions install from the menu (**About Huan Screen → Update to vX.Y.Z**) and macOS does not block them.
+
 ## Build from source
 
 Requires the Xcode Command Line Tools (`xcode-select --install`).
@@ -53,8 +62,8 @@ make install
 
 ### Releasing
 
-1. `make bump V=0.3.0` sets the version in `Resources/Info.plist`, increments the build number, commits it and creates the annotated tag `v0.3.0` (your editor opens for the tag message).
-2. Publish: `git push && git push origin v0.3.0`.
+1. `make bump V=x.y.z` sets the version in `Resources/Info.plist`, increments the build number, commits it and creates the annotated tag `vx.y.z` (your editor opens for the tag message).
+2. Publish: `git push && git push origin vx.y.z`.
 
 GitHub Actions then builds the app, checks the tag matches the version, and publishes the release with the zip, install notes, SHA-256 and changelog.
 
@@ -64,7 +73,7 @@ GitHub Actions then builds the app, checks the tag matches the version, and publ
 
 Click the icon to open the menu:
 
-<img src="docs/menu.png" alt="Huan Screen menu" width="304">
+<img src="docs/menu.png" alt="Huan Screen menu" width="310">
 
 The battery turns red below 20% and shows a bolt while charging. A notification warns you when the battery drops to 20%, then 10%; it is re-armed once the mouse charges or goes back above 25%. The menu bar always shows the cat icon, dimmed when the receiver is not plugged in; hover it to see the current mode.
 
