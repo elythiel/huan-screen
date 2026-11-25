@@ -7,7 +7,8 @@ struct MouseInfo: Sendable, Equatable {
     let dpiStages: [Int]
     var activeDPIStage: Int?
     var pollingRate: Int?
-    let liftOffDistance: Double?
+    var liftOffDistance: Double?
+    let liftOffMode: UInt8
 
     var dpi: Int? {
         guard let activeDPIStage, dpiStages.indices.contains(activeDPIStage - 1) else { return nil }
@@ -18,10 +19,14 @@ struct MouseInfo: Sendable, Equatable {
         [
             dpi.map { "\($0) DPI" },
             pollingRate.map { "\($0) Hz" },
-            liftOffDistance.map { "LOD \($0.formatted(.number.precision(.fractionLength(0...1)))) mm" },
+            liftOffDistance.map { "LOD \(Self.format(liftOffDistance: $0))" },
         ]
         .compactMap { $0 }
         .joined(separator: " · ")
+    }
+
+    static func format(liftOffDistance: Double) -> String {
+        "\(liftOffDistance.formatted(.number.precision(.fractionLength(0...1)))) mm"
     }
 }
 
@@ -32,12 +37,14 @@ extension MouseInfo {
     private static let maxDPIStages: UInt8 = 6
     private static let bytesPerDPIStage = 4
     static let supportedPollingRates = [125, 250, 500, 1000, 2000, 4000, 8000]
+    static let supportedLiftOffDistances = [0.7, 1, 2]
     static let pollingRateCodes: [Int: UInt8] = [125: 8, 250: 4, 500: 2, 1000: 1, 2000: 32, 4000: 64, 8000: 128]
     private static let pollingRates: [UInt8: Int] = [8: 125, 4: 250, 2: 500, 1: 1000, 16: 1000, 32: 2000, 64: 4000, 128: 8000]
 
     static func read(from channel: HIDChannel) -> MouseInfo? {
         guard let battery = channel.send(HIDRequest(target: mouse, length: 2, group: 0, command: 0x83), delay: delay) else { return nil }
         let profile = channel.send(HIDRequest(target: mouse, length: 1, group: 0, command: 0x85), delay: delay)?[0] ?? defaultProfile
+        let liftOff = channel.send(HIDRequest(target: mouse, length: 3, group: 1, command: 0x88, parameters: [profile]), delay: delay)
 
         return MouseInfo(
             batteryLevel: Int(battery[1]),
@@ -46,7 +53,8 @@ extension MouseInfo {
             dpiStages: readDPIStages(from: channel, profile: profile),
             activeDPIStage: readSetting(0x82, length: 2, from: channel, profile: profile).map(Int.init),
             pollingRate: readSetting(0x80, length: 2, from: channel, profile: profile).flatMap { pollingRates[$0] },
-            liftOffDistance: readSetting(0x88, length: 3, from: channel, profile: profile).map(decodeLiftOffDistance)
+            liftOffDistance: liftOff.map { decodeLiftOffDistance($0[1]) },
+            liftOffMode: liftOff?[2] ?? 0
         )
     }
 
@@ -61,6 +69,13 @@ extension MouseInfo {
             let offset = 2 + index * bytesPerDPIStage
             return Int(response[offset]) << 8 | Int(response[offset + 1])
         }
+    }
+
+    static func encodeLiftOffDistance(_ distance: Double) -> UInt8 {
+        let tenths = Int((distance * 10).rounded())
+        if tenths < 10 { return UInt8(tenths) | 0x80 }
+        if tenths % 10 == 0 { return UInt8(tenths / 10) }
+        return UInt8(tenths / 10) << 4 | UInt8(tenths % 10)
     }
 
     private static func decodeLiftOffDistance(_ value: UInt8) -> Double {

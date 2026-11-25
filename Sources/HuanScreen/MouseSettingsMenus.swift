@@ -14,7 +14,7 @@ final class MouseSettingsMenus {
         self.receiver = receiver
         self.mouseInfo = mouseInfo
         self.onUpdate = onUpdate
-        menus = [dpiMenu(), pollingRateMenu()]
+        menus = [dpiMenu(), pollingRateMenu(), liftOffDistanceMenu()]
         update()
     }
 
@@ -59,6 +59,28 @@ final class MouseSettingsMenus {
                 self?.apply { info in
                     guard self?.receiver.selectPollingRate(rate, profile: info.profile) == true else { return false }
                     info.pollingRate = rate
+                    return true
+                }
+            }
+        )
+    }
+
+    private func liftOffDistanceMenu() -> SettingMenu {
+        SettingMenu(
+            name: localized("Lift-off Distance"),
+            symbol: "arrow.up.and.down",
+            currentValue: { [weak self] in self?.mouseInfo()?.liftOffDistance.map(MouseInfo.format) },
+            options: { [weak self] in
+                guard let info = self?.mouseInfo() else { return [] }
+                return MouseInfo.supportedLiftOffDistances.map { distance in
+                    SettingOption(title: MouseInfo.format(liftOffDistance: distance), value: Int(distance * 10), isSelected: info.liftOffDistance == distance)
+                }
+            },
+            onSelect: { [weak self] tenths in
+                let distance = Double(tenths) / 10
+                self?.apply { info in
+                    guard self?.receiver.selectLiftOffDistance(distance, mode: info.liftOffMode, profile: info.profile) == true else { return false }
+                    info.liftOffDistance = distance
                     return true
                 }
             }

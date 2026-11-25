@@ -19,7 +19,7 @@ macOS menu bar app to switch the **WLMOUSE HUAN 8K receiver** screen between cat
 
 - Switch the receiver screen between cat and status modes
 - Mouse battery level, DPI, polling rate and lift-off distance at a glance
-- Switch DPI stages and polling rate from the menu
+- Switch DPI stages, polling rate and lift-off distance from the menu
 - Low battery notifications at 20% and 10%
 - One-click updates from the menu
 - Firmware update check for the mouse and the receiver
@@ -78,7 +78,7 @@ Click the icon to open the menu:
 
 The battery turns red below 20% and shows a bolt while charging. A notification warns you when the battery drops to 20%, then 10%; it is re-armed once the mouse charges or goes back above 25%. The menu bar always shows the cat icon, dimmed when the receiver is not plugged in; hover it to see the current mode.
 
-The **DPI** submenu lists the DPI stages of the active profile and switches to the one you pick. The **Polling Rate** submenu sets the polling rate from 125 to 8000 Hz (a lower rate saves battery).
+The **DPI** submenu lists the DPI stages of the active profile and switches to the one you pick. The **Polling Rate** submenu sets the polling rate from 125 to 8000 Hz (a lower rate saves battery). The **Lift-off Distance** submenu sets it to 0.7, 1 or 2 mm.
 
 **Updates** shows the current version and checks GitHub for a newer release at launch, then once a day (you get a notification once per new version). **Update to vX.Y.Z** downloads the release, verifies its SHA-256 against the one published by GitHub, replaces the app and relaunches it. **Check for Updates** checks right away.
 
@@ -138,7 +138,8 @@ Each command is a feature report write followed by a feature report read (30 ms 
 | `02 0A 01 81 <profile> 06` | DPI stages | profile, count, then X and Y per stage (16-bit big-endian) |
 | `02 02 01 00 <profile> <code>` | Set polling rate | profile, code |
 | `02 02 01 80 <profile>` | Polling rate | profile, code: `08` 125, `04` 250, `02` 500, `01` 1000, `20` 2000, `40` 4000, `80` 8000 Hz |
-| `02 03 01 88 <profile>` | Lift-off distance | profile, `01`/`02` mm, `0x80 + tenths`, or BCD (`0x12` = 1.2 mm) |
+| `02 03 01 08 <profile> <distance> <mode>` | Set lift-off distance | profile, distance, mode |
+| `02 03 01 88 <profile>` | Lift-off distance | profile, distance (`01`/`02` mm, `0x80 + tenths`, or BCD: `0x12` = 1.2 mm), mode |
 
 ## Disclaimer
 

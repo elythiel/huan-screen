@@ -75,6 +75,13 @@ final class Receiver {
         return channel?.send(request, delay: MouseInfo.delay) != nil
     }
 
+    @discardableResult
+    func selectLiftOffDistance(_ distance: Double, mode: UInt8, profile: UInt8) -> Bool {
+        let value = MouseInfo.encodeLiftOffDistance(distance)
+        let request = HIDRequest(target: MouseInfo.mouse, length: 3, group: 1, command: 0x08, parameters: [profile, value, mode])
+        return channel?.send(request, delay: MouseInfo.delay) != nil
+    }
+
     func readFirmware() async -> InstalledFirmware? {
         guard let channel else { return nil }
         return await Task.detached { InstalledFirmware.read(from: channel) }.value
